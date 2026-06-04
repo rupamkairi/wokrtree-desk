@@ -7,6 +7,8 @@
     "dev": "vite build && electrobun dev",
     "dev:hmr": "concurrently \"bun run hmr\" \"bun run dev\"",
     "hmr": "vite --port 5173",
+    "test": "vitest run --config vitest.config.ts",
+    "typecheck": "tsc --noEmit",
     "build": "vite build && electrobun build --env=canary",
     "build:canary": "vite build && electrobun build --env=canary",
     "build:stable": "vite build && electrobun build --env=stable"

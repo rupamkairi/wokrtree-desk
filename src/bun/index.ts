@@ -1,5 +1,7 @@
 import { BrowserWindow, Updater } from "electrobun/bun";
 
+import { createDesktopRpc } from "../platform/electrobun/rpc";
+
 const DEV_SERVER_PORT = 5173;
 const DEV_SERVER_URL = `http://localhost:${DEV_SERVER_PORT}`;
 
@@ -21,10 +23,12 @@ async function getMainViewUrl(): Promise<string> {
 }
 
 const url = await getMainViewUrl();
+const rpc = createDesktopRpc();
 
 new BrowserWindow({
   title: "Worktree Desk",
   url,
+  rpc,
   frame: {
     width: 1280,
     height: 840,
