@@ -2,20 +2,16 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { app } from "electrobun/bun";
-import { z } from "zod";
 
-import type { ConfigState, ProjectSnapshot } from "../../core/domain/types";
+import { upsertProjectInList } from "../../core/domain/projectRegistryState";
+import type { ConfigState, ProjectDetails } from "../../core/domain/types";
 import type { ProjectRegistryPort } from "../../core/ports/projectRegistryPort";
-import { projectSnapshotSchema } from "../contracts/schemas";
-
-const configStateSchema = z.object({
-  version: z.literal(1),
-  project: projectSnapshotSchema.nullable(),
-});
+import { configStateSchema } from "../contracts/schemas";
 
 const defaultState: ConfigState = {
-  version: 1,
-  project: null,
+  version: 2,
+  projects: [],
+  selectedProjectId: null,
 };
 
 export class JsonProjectRegistry implements ProjectRegistryPort {
@@ -24,23 +20,54 @@ export class JsonProjectRegistry implements ProjectRegistryPort {
   constructor() {
     const baseStatePath =
       app.statePath || path.join(process.cwd(), ".worktree-desk-state");
-    this.filePath = path.join(baseStatePath, "phase0-project.json");
+    this.filePath = path.join(baseStatePath, "worktree-desk-projects.json");
   }
 
-  async getRegisteredProject(): Promise<ProjectSnapshot | null> {
+  async getProjects(): Promise<ProjectDetails[]> {
     const state = await this.readState();
-    return state.project;
+    return state.projects;
   }
 
-  async saveRegisteredProject(project: ProjectSnapshot): Promise<void> {
+  async getProject(projectId: string): Promise<ProjectDetails | null> {
+    const state = await this.readState();
+    return state.projects.find((project) => project.id === projectId) ?? null;
+  }
+
+  async saveProject(project: ProjectDetails): Promise<void> {
+    const state = await this.readState();
     await this.writeState({
-      version: 1,
-      project,
+      ...state,
+      projects: upsertProjectInList(state.projects, project),
+      selectedProjectId: project.id,
     });
   }
 
-  async clearRegisteredProject(): Promise<void> {
-    await this.writeState(defaultState);
+  async removeProject(projectId: string): Promise<void> {
+    const state = await this.readState();
+    const projects = state.projects.filter((project) => project.id !== projectId);
+    const selectedProjectId =
+      state.selectedProjectId === projectId
+        ? projects[0]?.id ?? null
+        : state.selectedProjectId;
+
+    await this.writeState({
+      ...state,
+      projects,
+      selectedProjectId,
+    });
+  }
+
+  async getSelectedProjectId(): Promise<string | null> {
+    const state = await this.readState();
+    return state.selectedProjectId;
+  }
+
+  async setSelectedProjectId(projectId: string | null): Promise<void> {
+    const state = await this.readState();
+    await this.writeState({
+      ...state,
+      selectedProjectId: projectId,
+    });
   }
 
   private async readState(): Promise<ConfigState> {

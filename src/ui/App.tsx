@@ -1,165 +1,110 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type {
+  BranchRef,
+  CreateWorktreePreview,
   OperationDetails,
-  ProjectSnapshot,
-  WorktreeSnapshot,
+  ProjectDefaults,
+  ProjectDetails,
+  ProjectSummary,
 } from "../core/domain/types";
 import { desktopBridge } from "./bridge/electrobunDesktopBridge";
+import { CreateProjectPanel } from "./components/CreateProjectPanel";
+import { CreateWorktreePanel } from "./components/CreateWorktreePanel";
+import { OperationPanel } from "./components/OperationPanel";
+import { ProjectDefaultsForm } from "./components/ProjectDefaultsForm";
+import { ProjectsSidebar } from "./components/ProjectsSidebar";
+import { WorktreeBoard } from "./components/WorktreeBoard";
+import { WorktreeInspector } from "./components/WorktreeInspector";
+import {
+  buildDefaultProjectDefaults,
+  buildSuggestedWorktreePath,
+} from "./lib/projectDefaults";
 
-function formatOutputText(value: string): string {
-  return value.split("\0").join("\\0");
-}
+type InspectorMode =
+  | "worktree"
+  | "projectDefaults"
+  | "createProject"
+  | "createWorktree";
 
-function formatTimestamp(value: string): string {
-  return new Date(value).toLocaleString();
-}
-
-function WorktreeCard({ worktree }: { worktree: WorktreeSnapshot }) {
-  const dirtyState = worktree.status.clean ? "Clean" : "Modified";
-
-  return (
-    <article className="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-[0_14px_40px_rgba(15,23,42,0.08)]">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-lg font-semibold text-slate-950">
-            {worktree.displayBranch}
-          </h3>
-          <p className="mt-1 break-all text-sm leading-6 text-slate-600">
-            {worktree.path}
-          </p>
-        </div>
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-            worktree.status.clean
-              ? "bg-emerald-50 text-emerald-700"
-              : "bg-amber-50 text-amber-800"
-          }`}
-        >
-          {dirtyState}
-        </span>
-      </div>
-
-      <dl className="mt-5 grid gap-3 text-sm text-slate-600 sm:grid-cols-3">
-        <div className="rounded-2xl bg-slate-50 px-3 py-3">
-          <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Changed
-          </dt>
-          <dd className="mt-1 text-base font-semibold text-slate-950">
-            {worktree.status.changedCount}
-          </dd>
-        </div>
-        <div className="rounded-2xl bg-slate-50 px-3 py-3">
-          <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Untracked
-          </dt>
-          <dd className="mt-1 text-base font-semibold text-slate-950">
-            {worktree.status.untrackedCount}
-          </dd>
-        </div>
-        <div className="rounded-2xl bg-slate-50 px-3 py-3">
-          <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-            Conflicts
-          </dt>
-          <dd className="mt-1 text-base font-semibold text-slate-950">
-            {worktree.status.conflictCount}
-          </dd>
-        </div>
-      </dl>
-    </article>
-  );
-}
-
-function OperationPanel({ operation }: { operation: OperationDetails | null }) {
-  if (!operation) {
-    return (
-      <section className="rounded-[2rem] border border-slate-200 bg-white/85 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-        <h2 className="text-xl font-semibold text-slate-950">Operation details</h2>
-        <p className="mt-3 text-sm leading-6 text-slate-600">
-          The latest Git command will appear here after a repository is selected or
-          refreshed.
-        </p>
-      </section>
-    );
-  }
-
-  return (
-    <section className="rounded-[2rem] border border-slate-200 bg-slate-950 p-6 text-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-semibold">Operation details</h2>
-          <p className="mt-1 text-sm text-slate-300">
-            Last command finished at {formatTimestamp(operation.finishedAt)}
-          </p>
-        </div>
-        <span
-          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-            operation.success
-              ? "bg-emerald-500/15 text-emerald-200"
-              : "bg-rose-500/15 text-rose-200"
-          }`}
-        >
-          {operation.success ? "Success" : "Failed"}
-        </span>
-      </div>
-
-      <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
-        <div className="rounded-2xl bg-white/5 px-4 py-3">
-          <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-            Command
-          </dt>
-          <dd className="mt-2 break-all font-mono text-slate-100">
-            {operation.commandDisplay}
-          </dd>
-        </div>
-        <div className="rounded-2xl bg-white/5 px-4 py-3">
-          <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-            Cwd
-          </dt>
-          <dd className="mt-2 break-all font-mono text-slate-100">{operation.cwd}</dd>
-        </div>
-        <div className="rounded-2xl bg-white/5 px-4 py-3">
-          <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-            Exit code
-          </dt>
-          <dd className="mt-2 font-mono text-slate-100">{operation.exitCode}</dd>
-        </div>
-        <div className="rounded-2xl bg-white/5 px-4 py-3">
-          <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-            Duration
-          </dt>
-          <dd className="mt-2 font-mono text-slate-100">{operation.durationMs} ms</dd>
-        </div>
-      </dl>
-
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-2xl bg-white/5 p-4">
-          <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
-            stdout
-          </h3>
-          <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-black/20 p-3 text-xs leading-6 text-slate-100">
-            {formatOutputText(operation.stdout) || "(empty)"}
-          </pre>
-        </div>
-        <div className="rounded-2xl bg-white/5 p-4">
-          <h3 className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-400">
-            stderr
-          </h3>
-          <pre className="mt-3 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-xl bg-black/20 p-3 text-xs leading-6 text-slate-100">
-            {formatOutputText(operation.stderr) || "(empty)"}
-          </pre>
-        </div>
-      </div>
-    </section>
-  );
-}
+type CreateWorktreeState = {
+  branchMode: "existing" | "new";
+  existingBranch: string;
+  newBranchName: string;
+  baseRef: string;
+  targetPath: string;
+  hasCustomTargetPath: boolean;
+};
 
 function App() {
-  const [project, setProject] = useState<ProjectSnapshot | null>(null);
+  const [projects, setProjects] = useState<ProjectSummary[]>([]);
+  const [selectedProject, setSelectedProject] = useState<ProjectDetails | null>(null);
+  const [selectedWorktreePath, setSelectedWorktreePath] = useState<string | null>(null);
+  const [projectFilter, setProjectFilter] = useState("");
+  const [worktreeFilter, setWorktreeFilter] = useState("");
+  const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
   const [operation, setOperation] = useState<OperationDetails | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [isWorking, setIsWorking] = useState(false);
+  const [inspectorMode, setInspectorMode] = useState<InspectorMode>("worktree");
+  const [createProjectPath, setCreateProjectPath] = useState<string | null>(null);
+  const [createProjectDefaults, setCreateProjectDefaults] =
+    useState<ProjectDefaults | null>(null);
+  const [projectDefaultsDraft, setProjectDefaultsDraft] =
+    useState<ProjectDefaults | null>(null);
+  const [branchRefs, setBranchRefs] = useState<BranchRef[]>([]);
+  const [createWorktreeState, setCreateWorktreeState] =
+    useState<CreateWorktreeState | null>(null);
+  const [createWorktreePreview, setCreateWorktreePreview] =
+    useState<CreateWorktreePreview | null>(null);
+
+  const filteredProjects = useMemo(() => {
+    const normalizedFilter = projectFilter.trim().toLowerCase();
+    if (!normalizedFilter) {
+      return projects;
+    }
+
+    return projects.filter((project) =>
+      [project.displayName, project.primaryPath].some((value) =>
+        value.toLowerCase().includes(normalizedFilter),
+      ),
+    );
+  }, [projectFilter, projects]);
+
+  const filteredWorktrees = useMemo(() => {
+    if (!selectedProject) {
+      return [];
+    }
+
+    const normalizedFilter = worktreeFilter.trim().toLowerCase();
+    if (!normalizedFilter) {
+      return selectedProject.worktrees;
+    }
+
+    return selectedProject.worktrees.filter((worktree) =>
+      [worktree.displayBranch, worktree.path].some((value) =>
+        value.toLowerCase().includes(normalizedFilter),
+      ),
+    );
+  }, [selectedProject, worktreeFilter]);
+
+  const selectedWorktree =
+    selectedProject?.worktrees.find(
+      (worktree) => worktree.path === selectedWorktreePath,
+    ) ?? null;
+
+  async function loadProject(projectId: string) {
+    const project = await desktopBridge.getProject({ projectId });
+    setSelectedProject(project);
+    setSelectedWorktreePath(project.worktrees[0]?.path ?? null);
+    setProjectDefaultsDraft(project.defaults);
+  }
+
+  async function refreshProjectsList() {
+    const nextProjects = await desktopBridge.getProjects();
+    setProjects(nextProjects);
+    return nextProjects;
+  }
 
   async function syncLastOperation() {
     const latestOperation = await desktopBridge.getLastOperation();
@@ -172,8 +117,8 @@ function App() {
 
     async function loadInitialState() {
       try {
-        const [savedProject, savedOperation] = await Promise.all([
-          desktopBridge.getRegisteredProject(),
+        const [initialProjects, latestOperation] = await Promise.all([
+          desktopBridge.getProjects(),
           desktopBridge.getLastOperation(),
         ]);
 
@@ -181,17 +126,25 @@ function App() {
           return;
         }
 
-        setProject(savedProject);
-        setOperation(savedOperation);
+        setProjects(initialProjects);
+        setOperation(latestOperation);
+
+        if (initialProjects[0]) {
+          const project = await desktopBridge.getProject({
+            projectId: initialProjects[0].id,
+          });
+
+          if (!cancelled) {
+            setSelectedProject(project);
+            setSelectedWorktreePath(project.worktrees[0]?.path ?? null);
+            setProjectDefaultsDraft(project.defaults);
+          }
+        }
       } catch (error) {
         if (!cancelled) {
           setErrorMessage(
-            error instanceof Error ? error.message : "Unable to load saved state.",
+            error instanceof Error ? error.message : "Unable to load application state.",
           );
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false);
         }
       }
     }
@@ -203,31 +156,80 @@ function App() {
     };
   }, []);
 
-  async function handleSelectRepository() {
-    setIsWorking(true);
-    setErrorMessage(null);
-
-    try {
-      const selectedPath = await desktopBridge.chooseRepositoryDirectory();
-      if (!selectedPath) {
-        return;
-      }
-
-      const nextProject = await desktopBridge.registerRepository({ selectedPath });
-      setProject(nextProject);
-      await syncLastOperation();
-    } catch (error) {
-      await syncLastOperation();
-      setErrorMessage(
-        error instanceof Error ? error.message : "Unable to register repository.",
-      );
-    } finally {
-      setIsWorking(false);
+  useEffect(() => {
+    if (!selectedProject || !createWorktreeState || inspectorMode !== "createWorktree") {
+      setCreateWorktreePreview(null);
+      return;
     }
+
+    const activeProject = selectedProject;
+    const activeCreateState = createWorktreeState;
+    const branchName =
+      activeCreateState.branchMode === "existing"
+        ? activeCreateState.existingBranch
+        : activeCreateState.newBranchName;
+
+    if (
+      !branchName ||
+      !activeCreateState.targetPath ||
+      (activeCreateState.branchMode === "new" && !activeCreateState.baseRef)
+    ) {
+      setCreateWorktreePreview(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    async function loadPreview() {
+      try {
+        const preview = await desktopBridge.previewCreateWorktree({
+          projectId: activeProject.id,
+          branchMode: activeCreateState.branchMode,
+          branchName,
+          baseRef:
+            activeCreateState.branchMode === "new"
+              ? activeCreateState.baseRef
+              : undefined,
+          targetPath: activeCreateState.targetPath,
+        });
+
+        if (!cancelled) {
+          setCreateWorktreePreview(preview);
+        }
+      } catch {
+        if (!cancelled) {
+          setCreateWorktreePreview(null);
+        }
+      }
+    }
+
+    void loadPreview();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [createWorktreeState, inspectorMode, selectedProject]);
+
+  async function handleAddProject() {
+    setInspectorMode("createProject");
+    setErrorMessage(null);
+    setCreateProjectPath(null);
+    setCreateProjectDefaults(null);
   }
 
-  async function handleRefresh() {
-    if (!project) {
+  async function handlePickProjectDirectory() {
+    setErrorMessage(null);
+    const selectedPath = await desktopBridge.chooseRepositoryDirectory();
+    if (!selectedPath) {
+      return;
+    }
+
+    setCreateProjectPath(selectedPath);
+    setCreateProjectDefaults(buildDefaultProjectDefaults(selectedPath));
+  }
+
+  async function handleRegisterProject() {
+    if (!createProjectPath || !createProjectDefaults) {
       return;
     }
 
@@ -235,160 +237,399 @@ function App() {
     setErrorMessage(null);
 
     try {
-      const nextProject = await desktopBridge.refreshRepository({
-        projectId: project.id,
+      const project = await desktopBridge.registerProject({
+        selectedPath: createProjectPath,
+        defaults: createProjectDefaults,
       });
-      setProject(nextProject);
+      const nextProjects = await refreshProjectsList();
+      setSelectedProject(project);
+      setSelectedWorktreePath(project.worktrees[0]?.path ?? null);
+      setProjectDefaultsDraft(project.defaults);
+      setInspectorMode("worktree");
+      setCreateProjectPath(null);
+      setCreateProjectDefaults(null);
+      setProjects(nextProjects);
       await syncLastOperation();
     } catch (error) {
       await syncLastOperation();
       setErrorMessage(
-        error instanceof Error ? error.message : "Unable to refresh repository.",
+        error instanceof Error ? error.message : "Unable to register the project.",
       );
     } finally {
       setIsWorking(false);
     }
   }
 
+  async function handleSelectProject(projectId: string) {
+    setIsWorking(true);
+    setErrorMessage(null);
+
+    try {
+      await loadProject(projectId);
+      setInspectorMode("worktree");
+      await refreshProjectsList();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to load the selected project.",
+      );
+    } finally {
+      setIsWorking(false);
+    }
+  }
+
+  async function handleRefreshProject() {
+    if (!selectedProject) {
+      return;
+    }
+
+    setIsWorking(true);
+    setErrorMessage(null);
+
+    try {
+      const project = await desktopBridge.refreshProject({
+        projectId: selectedProject.id,
+      });
+      setSelectedProject(project);
+      setSelectedWorktreePath((currentSelection) => {
+        if (
+          currentSelection &&
+          project.worktrees.some((worktree) => worktree.path === currentSelection)
+        ) {
+          return currentSelection;
+        }
+
+        return project.worktrees[0]?.path ?? null;
+      });
+      setProjectDefaultsDraft(project.defaults);
+      await refreshProjectsList();
+      await syncLastOperation();
+    } catch (error) {
+      await syncLastOperation();
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to refresh the selected project.",
+      );
+    } finally {
+      setIsWorking(false);
+    }
+  }
+
+  async function handleSaveProjectDefaults() {
+    if (!selectedProject || !projectDefaultsDraft) {
+      return;
+    }
+
+    setIsWorking(true);
+    setErrorMessage(null);
+
+    try {
+      const project = await desktopBridge.updateProjectDefaults({
+        projectId: selectedProject.id,
+        defaults: projectDefaultsDraft,
+      });
+      setSelectedProject(project);
+      await refreshProjectsList();
+      setInspectorMode("worktree");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to save project defaults.",
+      );
+    } finally {
+      setIsWorking(false);
+    }
+  }
+
+  async function handleStartCreateWorktree() {
+    if (!selectedProject) {
+      return;
+    }
+
+    setIsWorking(true);
+    setErrorMessage(null);
+
+    try {
+      const branches = await desktopBridge.getBranchRefs({
+        projectId: selectedProject.id,
+      });
+      const preferredExistingBranch =
+        branches.find((branch) => !branch.checkedOut)?.name ?? branches[0]?.name ?? "";
+      const defaultBaseRef = branches[0]?.name ?? "";
+
+      setBranchRefs(branches);
+      setCreateWorktreeState({
+        branchMode: "existing",
+        existingBranch: preferredExistingBranch,
+        newBranchName: "",
+        baseRef: defaultBaseRef,
+        targetPath: buildSuggestedWorktreePath(
+          selectedProject.defaults.worktreeRoot,
+          preferredExistingBranch || defaultBaseRef,
+        ),
+        hasCustomTargetPath: false,
+      });
+      setInspectorMode("createWorktree");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to prepare worktree creation.",
+      );
+    } finally {
+      setIsWorking(false);
+    }
+  }
+
+  function updateCreateWorktreeState(
+    updater: (currentState: CreateWorktreeState) => CreateWorktreeState,
+  ) {
+    setCreateWorktreeState((currentState) => {
+      if (!currentState || !selectedProject) {
+        return currentState;
+      }
+
+      const nextState = updater(currentState);
+      const branchName =
+        nextState.branchMode === "existing"
+          ? nextState.existingBranch
+          : nextState.newBranchName;
+
+      if (!nextState.hasCustomTargetPath) {
+        nextState.targetPath = buildSuggestedWorktreePath(
+          selectedProject.defaults.worktreeRoot,
+          branchName,
+        );
+      }
+
+      return nextState;
+    });
+  }
+
+  async function handleCreateWorktree() {
+    if (!selectedProject || !createWorktreeState) {
+      return;
+    }
+
+    const branchName =
+      createWorktreeState.branchMode === "existing"
+        ? createWorktreeState.existingBranch
+        : createWorktreeState.newBranchName;
+
+    setIsWorking(true);
+    setErrorMessage(null);
+
+    try {
+      const result = await desktopBridge.createWorktree({
+        projectId: selectedProject.id,
+        branchMode: createWorktreeState.branchMode,
+        branchName,
+        baseRef:
+          createWorktreeState.branchMode === "new"
+            ? createWorktreeState.baseRef
+            : undefined,
+        targetPath: createWorktreeState.targetPath,
+      });
+      setSelectedProject(result.project);
+      setSelectedWorktreePath(result.createdPath);
+      setInspectorMode("worktree");
+      setCreateWorktreeState(null);
+      setCreateWorktreePreview(null);
+      await refreshProjectsList();
+      await syncLastOperation();
+    } catch (error) {
+      await syncLastOperation();
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to create the worktree.",
+      );
+    } finally {
+      setIsWorking(false);
+    }
+  }
+
+  async function handleOpenPath(path: string) {
+    try {
+      await desktopBridge.openPath({ path });
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Unable to open the requested path.",
+      );
+    }
+  }
+
   return (
-    <main className="min-h-screen text-slate-900">
-      <div className="mx-auto flex min-h-screen max-w-7xl flex-col gap-8 px-5 py-6 sm:px-8 lg:px-10">
-        <header className="rounded-[2rem] border border-white/70 bg-white/75 p-6 shadow-[0_20px_80px_rgba(15,23,42,0.08)] backdrop-blur-xl">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-3xl">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-sky-700">
-                Phase 0 Capability Spike
-              </div>
-              <h1 className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-                Electrobun, React, typed RPC, and Git porcelain working together.
+    <main className="h-screen bg-slate-200 text-slate-900">
+      <div className="flex h-full min-w-[1180px] overflow-hidden">
+        <ProjectsSidebar
+          onAddProject={() => {
+            void handleAddProject();
+          }}
+          onProjectFilterChange={setProjectFilter}
+          onSelectProject={(projectId) => {
+            void handleSelectProject(projectId);
+          }}
+          projectFilter={projectFilter}
+          projects={filteredProjects}
+          selectedProjectId={selectedProject?.id ?? null}
+        />
+
+        {selectedProject ? (
+          <WorktreeBoard
+            onCreateWorktree={() => {
+              void handleStartCreateWorktree();
+            }}
+            onEditDefaults={() => setInspectorMode("projectDefaults")}
+            onRefresh={() => {
+              void handleRefreshProject();
+            }}
+            onSelectWorktree={(worktreePath) => {
+              setSelectedWorktreePath(worktreePath);
+              setInspectorMode("worktree");
+            }}
+            onToggleViewMode={setViewMode}
+            onWorktreeFilterChange={setWorktreeFilter}
+            project={selectedProject}
+            selectedWorktreePath={selectedWorktreePath}
+            viewMode={viewMode}
+            worktreeFilter={worktreeFilter}
+            worktrees={filteredWorktrees}
+          />
+        ) : (
+          <section className="flex min-w-0 flex-1 items-center justify-center bg-slate-50">
+            <div className="rounded-lg border border-dashed border-slate-300 bg-white px-8 py-10 text-center">
+              <h1 className="text-2xl font-semibold text-slate-950">
+                Worktree Desk
               </h1>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-                This spike proves repository selection, Bun-side Git execution through
-                argument arrays, typed bridge calls, worktree/status parsing, and raw
-                diagnostics visibility without adding mutation flows yet.
+              <p className="mt-3 max-w-md text-sm leading-6 text-slate-600">
+                Register a project from the left sidebar to start managing worktrees,
+                branches, and project defaults.
               </p>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
               <button
-                className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={isWorking || isLoading}
+                className="mt-5 inline-flex h-10 items-center justify-center rounded-md bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700"
                 onClick={() => {
-                  void handleSelectRepository();
+                  void handleAddProject();
                 }}
                 type="button"
               >
-                {isWorking ? "Working..." : "Select Repository"}
-              </button>
-              <button
-                className="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-                disabled={isWorking || !project}
-                onClick={() => {
-                  void handleRefresh();
-                }}
-                type="button"
-              >
-                Refresh
+                Add Project
               </button>
             </div>
-          </div>
-        </header>
-
-        {errorMessage ? (
-          <section className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-900">
-            {errorMessage}
           </section>
-        ) : null}
+        )}
 
-        <section className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <div className="grid gap-6">
-            <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-semibold text-slate-950">
-                    Registered repository
-                  </h2>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">
-                    One repository is persisted for the Phase 0 spike.
-                  </p>
-                </div>
-                <div className="rounded-full bg-slate-950 px-3 py-1 text-xs font-semibold text-white">
-                  Electrobun + Bun.spawn()
-                </div>
+        <aside className="flex h-full w-[400px] flex-col border-l border-slate-200 bg-slate-100/95">
+          <div className="min-h-0 flex-1 overflow-auto px-4 py-4">
+            {errorMessage ? (
+              <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900">
+                {errorMessage}
               </div>
+            ) : null}
 
-              {project ? (
-                <dl className="mt-6 grid gap-4 text-sm text-slate-700">
-                  <div className="rounded-2xl bg-slate-50 px-4 py-4">
-                    <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Project
-                    </dt>
-                    <dd className="mt-2 text-lg font-semibold text-slate-950">
-                      {project.displayName}
-                    </dd>
-                  </div>
-                  <div className="rounded-2xl bg-slate-50 px-4 py-4">
-                    <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Selected path
-                    </dt>
-                    <dd className="mt-2 break-all font-mono text-slate-950">
-                      {project.selectedPath}
-                    </dd>
-                  </div>
-                  <div className="rounded-2xl bg-slate-50 px-4 py-4">
-                    <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Primary path
-                    </dt>
-                    <dd className="mt-2 break-all font-mono text-slate-950">
-                      {project.primaryPath}
-                    </dd>
-                  </div>
-                  <div className="rounded-2xl bg-slate-50 px-4 py-4">
-                    <dt className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Common Git dir
-                    </dt>
-                    <dd className="mt-2 break-all font-mono text-slate-950">
-                      {project.commonGitDir}
-                    </dd>
-                  </div>
-                </dl>
-              ) : (
-                <div className="mt-6 rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-sm leading-6 text-slate-600">
-                  Select a local Git repository or any existing worktree to populate the
-                  spike UI.
-                </div>
-              )}
-            </section>
+            <div className="space-y-4">
+              {inspectorMode === "createProject" ? (
+                <CreateProjectPanel
+                  defaults={createProjectDefaults}
+                  isWorking={isWorking}
+                  onChangeDefaults={setCreateProjectDefaults}
+                  onPickDirectory={() => {
+                    void handlePickProjectDirectory();
+                  }}
+                  onSubmit={() => {
+                    void handleRegisterProject();
+                  }}
+                  selectedPath={createProjectPath}
+                />
+              ) : null}
 
-            <section className="rounded-[2rem] border border-white/70 bg-white/85 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-semibold text-slate-950">Worktrees</h2>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Branch, path, and clean or modified state from Git porcelain output.
-                  </p>
-                </div>
-                <div className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-700">
-                  {project ? `${project.worktrees.length} discovered` : "0 discovered"}
-                </div>
-              </div>
-
-              <div className="mt-6 grid gap-4">
-                {project?.worktrees.length ? (
-                  project.worktrees.map((worktree) => (
-                    <WorktreeCard key={worktree.path} worktree={worktree} />
-                  ))
-                ) : (
-                  <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center text-sm leading-6 text-slate-600">
-                    No worktrees loaded yet.
+              {inspectorMode === "projectDefaults" && projectDefaultsDraft ? (
+                <section className="rounded-lg border border-slate-200 bg-white">
+                  <div className="border-b border-slate-200 px-5 py-4">
+                    <h2 className="text-sm font-semibold text-slate-950">
+                      Project Defaults
+                    </h2>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">
+                      Configure the default worktree root and preferred launchers for
+                      future worktree creation.
+                    </p>
                   </div>
-                )}
-              </div>
-            </section>
+                  <div className="space-y-4 px-5 py-5">
+                    <ProjectDefaultsForm
+                      defaults={projectDefaultsDraft}
+                      onChange={setProjectDefaultsDraft}
+                    />
+                    <button
+                      className="inline-flex h-10 items-center justify-center rounded-md bg-sky-600 px-4 text-sm font-semibold text-white transition hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={isWorking}
+                      onClick={() => {
+                        void handleSaveProjectDefaults();
+                      }}
+                      type="button"
+                    >
+                      {isWorking ? "Saving..." : "Save Defaults"}
+                    </button>
+                  </div>
+                </section>
+              ) : null}
+
+              {inspectorMode === "createWorktree" &&
+              selectedProject &&
+              createWorktreeState ? (
+                <CreateWorktreePanel
+                  baseRef={createWorktreeState.baseRef}
+                  branchMode={createWorktreeState.branchMode}
+                  branches={branchRefs}
+                  existingBranch={createWorktreeState.existingBranch}
+                  isWorking={isWorking}
+                  newBranchName={createWorktreeState.newBranchName}
+                  onChangeBaseRef={(value) =>
+                    updateCreateWorktreeState((currentState) => ({
+                      ...currentState,
+                      baseRef: value,
+                    }))
+                  }
+                  onChangeBranchMode={(value) =>
+                    updateCreateWorktreeState((currentState) => ({
+                      ...currentState,
+                      branchMode: value,
+                    }))
+                  }
+                  onChangeExistingBranch={(value) =>
+                    updateCreateWorktreeState((currentState) => ({
+                      ...currentState,
+                      existingBranch: value,
+                    }))
+                  }
+                  onChangeNewBranchName={(value) =>
+                    updateCreateWorktreeState((currentState) => ({
+                      ...currentState,
+                      newBranchName: value,
+                    }))
+                  }
+                  onChangeTargetPath={(value) =>
+                    updateCreateWorktreeState((currentState) => ({
+                      ...currentState,
+                      targetPath: value,
+                      hasCustomTargetPath: true,
+                    }))
+                  }
+                  onSubmit={() => {
+                    void handleCreateWorktree();
+                  }}
+                  preview={createWorktreePreview}
+                  project={selectedProject}
+                  targetPath={createWorktreeState.targetPath}
+                />
+              ) : null}
+
+              {inspectorMode === "worktree" && selectedProject ? (
+                <WorktreeInspector
+                  onOpenPath={(path) => {
+                    void handleOpenPath(path);
+                  }}
+                  project={selectedProject}
+                  worktree={selectedWorktree}
+                />
+              ) : null}
+
+              <OperationPanel operation={operation} />
+            </div>
           </div>
-
-          <OperationPanel operation={operation} />
-        </section>
+        </aside>
       </div>
     </main>
   );

@@ -2,7 +2,8 @@ import path from "node:path";
 
 import type {
   OperationDetails,
-  ProjectSnapshot,
+  ProjectDefaults,
+  ProjectDetails,
   RepositoryInfo,
   WorktreeSnapshot,
 } from "../../domain/types";
@@ -105,10 +106,11 @@ async function listWorktrees(
   return { worktrees, operation: lastOperation };
 }
 
-export async function loadProjectSnapshot(
+export async function loadProjectDetails(
   commandRunner: CommandRunner,
   selectedPath: string,
-): Promise<{ project: ProjectSnapshot; operation: OperationDetails }> {
+  defaults: ProjectDefaults,
+): Promise<{ project: ProjectDetails; operation: OperationDetails }> {
   const { repository } = await discoverRepository(commandRunner, selectedPath);
   const { worktrees, operation } = await listWorktrees(commandRunner, repository);
 
@@ -119,6 +121,7 @@ export async function loadProjectSnapshot(
       selectedPath: repository.selectedPath,
       primaryPath: repository.primaryPath,
       commonGitDir: repository.commonGitDir,
+      defaults,
       worktrees,
     },
     operation,

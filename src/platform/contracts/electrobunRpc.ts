@@ -1,8 +1,14 @@
 import type { RPCSchema } from "electrobun/bun";
 
 import type {
+  BranchRef,
+  CreateWorktreePreview,
+  CreateWorktreeRequest,
+  CreateWorktreeResult,
   OperationDetails,
-  ProjectSnapshot,
+  ProjectDefaults,
+  ProjectDetails,
+  ProjectSummary,
   RepositorySelectionResult,
 } from "../../core/domain/types";
 
@@ -11,17 +17,41 @@ type BunRequests = {
     params: undefined;
     response: RepositorySelectionResult;
   };
-  registerRepository: {
-    params: { selectedPath: string };
-    response: ProjectSnapshot;
+  openPath: {
+    params: { path: string };
+    response: void;
   };
-  refreshRepository: {
-    params: { projectId: string };
-    response: ProjectSnapshot;
-  };
-  getRegisteredProject: {
+  getProjects: {
     params: undefined;
-    response: ProjectSnapshot | null;
+    response: ProjectSummary[];
+  };
+  getProject: {
+    params: { projectId: string };
+    response: ProjectDetails;
+  };
+  registerProject: {
+    params: { selectedPath: string; defaults: ProjectDefaults };
+    response: ProjectDetails;
+  };
+  updateProjectDefaults: {
+    params: { projectId: string; defaults: ProjectDefaults };
+    response: ProjectDetails;
+  };
+  getBranchRefs: {
+    params: { projectId: string };
+    response: BranchRef[];
+  };
+  previewCreateWorktree: {
+    params: CreateWorktreeRequest;
+    response: CreateWorktreePreview;
+  };
+  createWorktree: {
+    params: CreateWorktreeRequest;
+    response: CreateWorktreeResult;
+  };
+  refreshProject: {
+    params: { projectId: string };
+    response: ProjectDetails;
   };
   getLastOperation: {
     params: undefined;
