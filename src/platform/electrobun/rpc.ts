@@ -7,6 +7,7 @@ import type {
 } from "../../core/domain/types";
 import { OperationError } from "../../core/errors/operationError";
 import { listBranchRefs } from "../../core/git/services/gitBranchService";
+import { listCommits } from "../../core/git/services/gitCommitService";
 import { createWorktree } from "../../core/git/services/gitWorktreeMutationService";
 import { previewCreateWorktree } from "../../core/git/services/gitWorktreePreviewService";
 import { loadProjectDetails } from "../../core/git/services/gitWorktreeService";
@@ -14,10 +15,12 @@ import { BunSpawnCommandRunner } from "./commandRunner";
 import { JsonProjectRegistry } from "./configStore";
 import {
   branchRefSchema,
+  commitPageSchema,
   createWorktreePreviewSchema,
   createWorktreeRequestSchema,
   createWorktreeResultSchema,
   getBranchRefsRequestSchema,
+  getCommitsRequestSchema,
   getProjectRequestSchema,
   operationDetailsNullableSchema,
   openPathRequestSchema,
@@ -55,8 +58,14 @@ async function chooseRepositoryDirectory() {
     allowsMultipleSelection: false,
   });
 
+  // Utils.openFileDialog returns `result.split(",")`, so a cancelled dialog
+  // yields [""] rather than []. Drop blank entries before picking the first.
+  const firstPath = selectedPaths
+    .map((path) => path.trim())
+    .find((path) => path.length > 0);
+
   return repositorySelectionResultSchema.parse({
-    selectedPath: selectedPaths[0] ?? null,
+    selectedPath: firstPath ?? null,
   });
 }
 
@@ -137,6 +146,22 @@ async function getBranchRefs(params: { projectId: string }) {
   return branches.map((branch) => branchRefSchema.parse(branch));
 }
 
+async function getCommits(params: {
+  projectId: string;
+  branchName: string;
+  limit?: number;
+  skip?: number;
+}) {
+  const request = getCommitsRequestSchema.parse(params);
+  const project = await getStoredProject(request.projectId);
+  const page = await listCommits(commandRunner, project, {
+    branchName: request.branchName,
+    limit: request.limit,
+    skip: request.skip,
+  });
+  return commitPageSchema.parse(page);
+}
+
 async function previewWorktree(params: {
   projectId: string;
   branchMode: "existing" | "new";
@@ -212,6 +237,7 @@ export function createDesktopRpc() {
         registerProject,
         updateProjectDefaults,
         getBranchRefs,
+        getCommits,
         previewCreateWorktree: previewWorktree,
         createWorktree: createProjectWorktree,
         refreshProject,

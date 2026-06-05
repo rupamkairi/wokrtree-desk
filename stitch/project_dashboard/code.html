@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GitPro Desktop - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#c0c7d4",
+                        "on-secondary-container": "#00320a",
+                        "on-surface": "#dae3ee",
+                        "tertiary-fixed": "#ffdeaa",
+                        "surface-bright": "#313a43",
+                        "on-primary-fixed-variant": "#004882",
+                        "primary": "#a2c9ff",
+                        "on-primary": "#00315c",
+                        "on-tertiary": "#422c00",
+                        "surface-container-low": "#141c24",
+                        "primary-fixed-dim": "#a2c9ff",
+                        "tertiary": "#fabc45",
+                        "secondary-container": "#27a640",
+                        "background": "#0b141c",
+                        "inverse-surface": "#dae3ee",
+                        "surface-container": "#182028",
+                        "surface-container-highest": "#2d363e",
+                        "surface-tint": "#a2c9ff",
+                        "surface-dim": "#0b141c",
+                        "surface-container-high": "#222b33",
+                        "on-tertiary-fixed-variant": "#5f4100",
+                        "secondary": "#67df70",
+                        "on-primary-container": "#003a6b",
+                        "outline": "#8b919d",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#fabc45",
+                        "on-tertiary-fixed": "#271900",
+                        "on-error-container": "#ffdad6",
+                        "primary-container": "#58a6ff",
+                        "secondary-fixed": "#83fc89",
+                        "on-background": "#dae3ee",
+                        "on-error": "#690005",
+                        "on-primary-fixed": "#001c38",
+                        "inverse-primary": "#0060aa",
+                        "on-secondary-fixed": "#002105",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed-variant": "#005317",
+                        "surface-variant": "#2d363e",
+                        "tertiary-container": "#d29922",
+                        "on-secondary": "#00390d",
+                        "outline-variant": "#414752",
+                        "surface": "#0b141c",
+                        "primary-fixed": "#d3e4ff",
+                        "secondary-fixed-dim": "#67df70",
+                        "surface-container-lowest": "#060f16",
+                        "on-tertiary-container": "#4d3500",
+                        "inverse-on-surface": "#29313a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sidebar-width": "240px",
+                        "element-gap": "8px",
+                        "container-padding": "12px",
+                        "unit": "4px",
+                        "toolbar-height": "40px"
+                    },
+                    "fontFamily": {
+                        "code-mono-bold": ["JetBrains Mono"],
+                        "ui-sans-bold": ["Inter"],
+                        "code-mono-reg": ["JetBrains Mono"],
+                        "ui-sans-reg": ["Inter"],
+                        "ui-sans-sm": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "code-mono-bold": ["12px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "ui-sans-bold": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "code-mono-reg": ["12px", { "lineHeight": "20px", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+                        "ui-sans-reg": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "ui-sans-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #0b141c; color: #dae3ee; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #060f16; }
+        ::-webkit-scrollbar-thumb { background: #2d363e; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #414752; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-ui-sans-reg text-ui-sans-reg h-screen w-screen overflow-hidden flex">
+<!-- SideNavBar -->
+<nav class="w-sidebar-width h-full fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col py-container-padding z-20">
+<!-- Header -->
+<div class="px-container-padding mb-6">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant">
+<img alt="Developer Profile" class="w-full h-full object-cover" data-alt="A close-up portrait of a female developer with short dark hair in a well-lit studio. She is looking slightly off-camera with a neutral, focused expression. The lighting is soft and natural, creating a clean, modern aesthetic that fits a technical software environment. The background is slightly out of focus and neutral." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6UiNoM2NER_UoAK2wOvUskkTVUGUwlvOmOX6VPDr4ggUI62DFW3TG-wtzPCksl-h7vVOqXNbYeOmsMLSWxbC8O9PN_FYZcNpzUUX5ocJJiPckc_yL4KXbqtREtJs_Sy5rnNeti6aDlWGEYN-0geF273RnCWnhUaeufyY9op0n37BuuHoMX6Pyqy_d6pVc4ozOsJrsz9fYYYmEdP3bO-x-0yLinZe8GbBrxKybrtIJ1FVaR667CbnV-tB--zoB_tRxq9DFFpUAZCZI"/>
+</div>
+<div>
+<h1 class="font-ui-sans-bold text-ui-sans-bold text-primary">GitPro Desktop</h1>
+<p class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">v2.4.0-stable</p>
+</div>
+</div>
+</div>
+<!-- Main Nav -->
+<div class="flex-1 px-container-padding flex flex-col gap-1">
+<!-- Active: Repositories -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT border-l-2 border-primary bg-surface-container text-primary font-ui-sans-reg text-ui-sans-reg cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">database</span>
+<span>Repositories</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors font-ui-sans-reg text-ui-sans-reg cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">page_control</span>
+<span>Changes</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors font-ui-sans-reg text-ui-sans-reg cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">history</span>
+<span>History</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors font-ui-sans-reg text-ui-sans-reg cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">account_tree</span>
+<span>Worktrees</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors font-ui-sans-reg text-ui-sans-reg cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<!-- CTA -->
+<div class="px-container-padding mt-auto mb-4">
+<button class="w-full flex items-center justify-center gap-2 py-2 bg-[#1F6FEB] text-white rounded-DEFAULT font-ui-sans-bold text-ui-sans-bold hover:bg-primary-container hover:text-on-primary-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Repository
+            </button>
+</div>
+<!-- Footer Nav -->
+<div class="px-container-padding pt-4 border-t border-outline-variant flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-1.5 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors font-ui-sans-reg text-ui-sans-reg cursor-pointer" href="#">
+<span class="material-symbols-outlined text-[16px]">help</span>
+<span>Docs</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-1.5 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors font-ui-sans-reg text-ui-sans-reg cursor-pointer" href="#">
+<span class="material-symbols-outlined text-[16px]">contact_support</span>
+<span>Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 ml-sidebar-width flex flex-col h-full bg-background relative overflow-y-auto">
+<!-- TopNavBar (Simplified for Dashboard context, no specific file context) -->
+<header class="h-toolbar-height w-full sticky top-0 bg-surface-container-low border-b border-outline-variant flex items-center justify-between px-container-padding z-10 cursor-default select-none">
+<div class="flex items-center gap-4">
+<span class="font-code-mono-bold text-code-mono-bold text-primary">GitPro</span>
+<span class="text-on-surface-variant font-ui-sans-sm text-ui-sans-sm">/ Dashboard</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant">search</span>
+<input class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT pl-8 pr-3 py-1 text-ui-sans-sm font-ui-sans-sm text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-64 placeholder-on-surface-variant" placeholder="Search repositories..." type="text"/>
+</div>
+<button class="text-on-surface-variant hover:text-primary transition-all p-1 rounded-DEFAULT hover:bg-surface-container-high">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<!-- Dashboard Content -->
+<main class="flex-1 p-6 max-w-5xl mx-auto w-full flex flex-col gap-8">
+<!-- Get Started Section -->
+<section>
+<h2 class="font-ui-sans-bold text-[20px] mb-4 text-on-surface">Get Started</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Clone -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-5 hover:border-primary cursor-pointer transition-colors group flex flex-col h-full">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-highest flex items-center justify-center mb-4 group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors text-on-surface">
+<span class="material-symbols-outlined">cloud_download</span>
+</div>
+<h3 class="font-ui-sans-bold text-ui-sans-bold text-on-surface mb-1">Clone Repository</h3>
+<p class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant mb-4 flex-1">Clone an existing project from GitHub, GitLab, or Bitbucket via URL.</p>
+<div class="flex gap-2">
+<input class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT px-2 py-1.5 text-ui-sans-sm font-code-mono-reg text-on-surface focus:outline-none focus:border-primary flex-1 min-w-0" onclick="event.stopPropagation()" placeholder="https://..." type="text"/>
+<button class="bg-surface-container-high hover:bg-surface-variant text-on-surface border border-outline-variant rounded-DEFAULT px-3 py-1.5 font-ui-sans-bold text-ui-sans-sm transition-colors whitespace-nowrap">Clone</button>
+</div>
+</div>
+<!-- Add Local -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-5 hover:border-primary cursor-pointer transition-colors group flex flex-col h-full">
+<div class="w-10 h-10 rounded-DEFAULT bg-surface-container-highest flex items-center justify-center mb-4 group-hover:bg-primary-container group-hover:text-on-primary-container transition-colors text-on-surface">
+<span class="material-symbols-outlined">folder_open</span>
+</div>
+<h3 class="font-ui-sans-bold text-ui-sans-bold text-on-surface mb-1">Add Local Repository</h3>
+<p class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant mb-4 flex-1">Add an existing local directory to manage it with GitPro.</p>
+<button class="w-full bg-surface-container-high hover:bg-surface-variant text-on-surface border border-outline-variant rounded-DEFAULT px-3 py-1.5 font-ui-sans-bold text-ui-sans-sm transition-colors mt-auto flex items-center justify-center gap-2">
+                            Browse Files
+                        </button>
+</div>
+<!-- Create New -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-5 hover:border-primary cursor-pointer transition-colors group flex flex-col h-full">
+<div class="w-10 h-10 rounded-DEFAULT bg-[#1F6FEB] text-white flex items-center justify-center mb-4">
+<span class="material-symbols-outlined">add_box</span>
+</div>
+<h3 class="font-ui-sans-bold text-ui-sans-bold text-on-surface mb-1">Create New Repository</h3>
+<p class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant mb-4 flex-1">Initialize a brand new local repository and start tracking files.</p>
+<button class="w-full bg-[#1F6FEB] hover:bg-primary-container hover:text-on-primary-container text-white rounded-DEFAULT px-3 py-1.5 font-ui-sans-bold text-ui-sans-sm transition-colors mt-auto">
+                            Initialize Repo
+                        </button>
+</div>
+</div>
+</section>
+<!-- Recent Projects -->
+<section class="flex-1">
+<div class="flex items-center justify-between mb-4">
+<h2 class="font-ui-sans-bold text-[18px] text-on-surface">Recent Projects</h2>
+<div class="flex items-center gap-2">
+<span class="text-on-surface-variant font-ui-sans-sm text-ui-sans-sm">Filter:</span>
+<select class="bg-surface-container-lowest border border-outline-variant rounded-DEFAULT px-2 py-1 text-ui-sans-sm font-ui-sans-sm text-on-surface focus:outline-none focus:border-primary">
+<option>All Repositories</option>
+<option>Local Only</option>
+<option>With Changes</option>
+</select>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<!-- Repo Item 1 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-3 flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors text-[24px]">folder_code</span>
+<div>
+<h4 class="font-ui-sans-bold text-ui-sans-bold text-on-surface">backend-api-v2</h4>
+<p class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">~/Projects/acme-corp/backend-api-v2</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<!-- Branch Badge -->
+<div class="flex items-center gap-1.5 bg-surface-container-highest px-2 py-1 rounded-DEFAULT border border-outline-variant">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">call_split</span>
+<span class="font-code-mono-reg text-[11px] text-on-surface">feature/auth-migration</span>
+</div>
+<!-- Status -->
+<div class="flex items-center gap-2 w-24">
+<div class="flex items-center gap-1 text-[#27a640]">
+<span class="material-symbols-outlined text-[14px]">arrow_upward</span>
+<span class="font-code-mono-bold text-code-mono-bold">2</span>
+</div>
+<div class="flex items-center gap-1 text-[#ffb4ab]">
+<span class="material-symbols-outlined text-[14px]">edit_document</span>
+<span class="font-code-mono-bold text-code-mono-bold">5</span>
+</div>
+</div>
+<!-- Sync Time -->
+<div class="text-right w-24">
+<span class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">10 mins ago</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-surface-container-high rounded-DEFAULT">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Repo Item 2 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-3 flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors text-[24px]">folder_code</span>
+<div>
+<h4 class="font-ui-sans-bold text-ui-sans-bold text-on-surface">frontend-dashboard</h4>
+<p class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">~/Projects/acme-corp/frontend-dashboard</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<!-- Branch Badge -->
+<div class="flex items-center gap-1.5 bg-surface-container-highest px-2 py-1 rounded-DEFAULT border border-outline-variant">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">call_split</span>
+<span class="font-code-mono-reg text-[11px] text-on-surface">main</span>
+</div>
+<!-- Status -->
+<div class="flex items-center gap-2 w-24 text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+<span class="font-ui-sans-sm text-[11px]">Clean</span>
+</div>
+<!-- Sync Time -->
+<div class="text-right w-24">
+<span class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">1 hour ago</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-surface-container-high rounded-DEFAULT">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Repo Item 3 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-3 flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors text-[24px]">folder_code</span>
+<div>
+<h4 class="font-ui-sans-bold text-ui-sans-bold text-on-surface">design-system</h4>
+<p class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">~/Projects/shared/design-system</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<!-- Branch Badge -->
+<div class="flex items-center gap-1.5 bg-surface-container-highest px-2 py-1 rounded-DEFAULT border border-outline-variant">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">call_split</span>
+<span class="font-code-mono-reg text-[11px] text-on-surface">hotfix/button-tokens</span>
+</div>
+<!-- Status -->
+<div class="flex items-center gap-2 w-24">
+<div class="flex items-center gap-1 text-[#ffb4ab]">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+<span class="font-code-mono-bold text-code-mono-bold">1 Conflict</span>
+</div>
+</div>
+<!-- Sync Time -->
+<div class="text-right w-24">
+<span class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">Yesterday</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-surface-container-high rounded-DEFAULT">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</div>
+</div>
+<!-- Repo Item 4 -->
+<div class="bg-surface-container-low border border-outline-variant rounded-lg p-3 flex items-center justify-between hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-outline-variant group-hover:text-primary transition-colors text-[24px]">folder_code</span>
+<div>
+<h4 class="font-ui-sans-bold text-ui-sans-bold text-on-surface">dev-environment-setup</h4>
+<p class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">~/Personal/dev-environment-setup</p>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<!-- Branch Badge -->
+<div class="flex items-center gap-1.5 bg-surface-container-highest px-2 py-1 rounded-DEFAULT border border-outline-variant">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">call_split</span>
+<span class="font-code-mono-reg text-[11px] text-on-surface">master</span>
+</div>
+<!-- Status -->
+<div class="flex items-center gap-2 w-24">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+<span class="font-code-mono-bold text-code-mono-bold">12</span>
+</div>
+</div>
+<!-- Sync Time -->
+<div class="text-right w-24">
+<span class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">3 days ago</span>
+</div>
+<button class="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-surface-container-high rounded-DEFAULT">
+<span class="material-symbols-outlined text-on-surface-variant">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+</main>
+</div>
+</body></html>

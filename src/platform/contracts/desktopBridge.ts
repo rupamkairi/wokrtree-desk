@@ -1,5 +1,6 @@
 import type {
   BranchRef,
+  CommitPage,
   CreateWorktreePreview,
   CreateWorktreeRequest,
   CreateWorktreeResult,
@@ -23,6 +24,12 @@ export interface DesktopBridge {
     defaults: ProjectDefaults;
   }): Promise<ProjectDetails>;
   getBranchRefs(input: { projectId: string }): Promise<BranchRef[]>;
+  getCommits(input: {
+    projectId: string;
+    branchName: string;
+    limit?: number;
+    skip?: number;
+  }): Promise<CommitPage>;
   previewCreateWorktree(
     input: CreateWorktreeRequest,
   ): Promise<CreateWorktreePreview>;

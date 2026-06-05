@@ -4,10 +4,12 @@ import type { DesktopBridge } from "../../platform/contracts/desktopBridge";
 import type { DesktopElectrobunRpcSchema } from "../../platform/contracts/electrobunRpc";
 import {
   branchRefSchema,
+  commitPageSchema,
   createWorktreePreviewSchema,
   createWorktreeRequestSchema,
   createWorktreeResultSchema,
   getBranchRefsRequestSchema,
+  getCommitsRequestSchema,
   getProjectRequestSchema,
   operationDetailsNullableSchema,
   openPathRequestSchema,
@@ -18,7 +20,15 @@ import {
   updateProjectDefaultsRequestSchema,
 } from "../../platform/contracts/schemas";
 
+// Electrobun's default RPC timeout is 1000ms. That is far too short here:
+// chooseRepositoryDirectory opens a native modal the user interacts with, and
+// git-backed calls (status/log on cold spawn) can exceed a second. Give every
+// request a generous window so a slow dialog or git call is not mistaken for a
+// dead transport.
+const RPC_MAX_REQUEST_TIME_MS = 120_000;
+
 const rpc = Electroview.defineRPC<DesktopElectrobunRpcSchema>({
+  maxRequestTime: RPC_MAX_REQUEST_TIME_MS,
   handlers: {
     requests: {},
   },
@@ -64,6 +74,11 @@ export const desktopBridge: DesktopBridge = {
   async getBranchRefs(input) {
     const request = getBranchRefsRequestSchema.parse(input);
     return branchRefSchema.array().parse(await rpc.request.getBranchRefs(request));
+  },
+
+  async getCommits(input) {
+    const request = getCommitsRequestSchema.parse(input);
+    return commitPageSchema.parse(await rpc.request.getCommits(request));
   },
 
   async previewCreateWorktree(input) {

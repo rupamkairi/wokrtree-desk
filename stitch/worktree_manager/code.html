@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GitPro - Worktrees</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .bg-success { background-color: #238636; }
+            .bg-primary-btn { background-color: #1F6FEB; }
+            .border-ghost { border-color: #30363D; }
+            .bg-diff-add { background-color: rgba(63, 185, 80, 0.15); }
+            .bg-diff-remove { background-color: rgba(248, 81, 73, 0.15); }
+            .text-accent { color: #F78166; }
+            .border-accent { border-color: #F78166; }
+            .focus-glow:focus { box-shadow: 0 0 0 1px #a2c9ff; border-color: #a2c9ff; }
+            .level-2-shadow { box-shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.2); }
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#c0c7d4",
+                        "on-secondary-container": "#00320a",
+                        "on-surface": "#dae3ee",
+                        "tertiary-fixed": "#ffdeaa",
+                        "surface-bright": "#313a43",
+                        "on-primary-fixed-variant": "#004882",
+                        "primary": "#a2c9ff",
+                        "on-primary": "#00315c",
+                        "on-tertiary": "#422c00",
+                        "surface-container-low": "#141c24",
+                        "primary-fixed-dim": "#a2c9ff",
+                        "tertiary": "#fabc45",
+                        "secondary-container": "#27a640",
+                        "background": "#0b141c",
+                        "inverse-surface": "#dae3ee",
+                        "surface-container": "#182028",
+                        "surface-container-highest": "#2d363e",
+                        "surface-tint": "#a2c9ff",
+                        "surface-dim": "#0b141c",
+                        "surface-container-high": "#222b33",
+                        "on-tertiary-fixed-variant": "#5f4100",
+                        "secondary": "#67df70",
+                        "on-primary-container": "#003a6b",
+                        "outline": "#8b919d",
+                        "error-container": "#93000a",
+                        "tertiary-fixed-dim": "#fabc45",
+                        "on-tertiary-fixed": "#271900",
+                        "on-error-container": "#ffdad6",
+                        "primary-container": "#58a6ff",
+                        "secondary-fixed": "#83fc89",
+                        "on-background": "#dae3ee",
+                        "on-error": "#690005",
+                        "on-primary-fixed": "#001c38",
+                        "inverse-primary": "#0060aa",
+                        "on-secondary-fixed": "#002105",
+                        "error": "#ffb4ab",
+                        "on-secondary-fixed-variant": "#005317",
+                        "surface-variant": "#2d363e",
+                        "tertiary-container": "#d29922",
+                        "on-secondary": "#00390d",
+                        "outline-variant": "#414752",
+                        "surface": "#0b141c",
+                        "primary-fixed": "#d3e4ff",
+                        "secondary-fixed-dim": "#67df70",
+                        "surface-container-lowest": "#060f16",
+                        "on-tertiary-container": "#4d3500",
+                        "inverse-on-surface": "#29313a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sidebar-width": "240px",
+                        "element-gap": "8px",
+                        "container-padding": "12px",
+                        "unit": "4px",
+                        "toolbar-height": "40px"
+                    },
+                    "fontFamily": {
+                        "code-mono-bold": ["JetBrains Mono"],
+                        "ui-sans-bold": ["Inter"],
+                        "code-mono-reg": ["JetBrains Mono"],
+                        "ui-sans-reg": ["Inter"],
+                        "ui-sans-sm": ["Inter"],
+                        "label-caps": ["Inter"]
+                    },
+                    "fontSize": {
+                        "code-mono-bold": ["12px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "ui-sans-bold": ["14px", { "lineHeight": "20px", "fontWeight": "600" }],
+                        "code-mono-reg": ["12px", { "lineHeight": "20px", "letterSpacing": "-0.02em", "fontWeight": "400" }],
+                        "ui-sans-reg": ["13px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "ui-sans-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background h-screen w-full overflow-hidden flex font-ui-sans-reg text-ui-sans-reg">
+<!-- SideNavBar -->
+<nav class="w-sidebar-width h-full fixed left-0 top-0 border-r border-outline-variant bg-surface-container-lowest flex flex-col py-container-padding z-10">
+<div class="px-container-padding mb-6 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-primary" data-icon="account_circle" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</div>
+<div>
+<h1 class="font-ui-sans-bold text-ui-sans-bold text-primary">GitPro Desktop</h1>
+<p class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">v2.4.0-stable</p>
+</div>
+</div>
+<div class="px-container-padding mb-6">
+<button class="w-full bg-success text-white font-ui-sans-bold text-ui-sans-bold py-2 rounded flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+                New Repository
+            </button>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="database">database</span>
+                Repositories
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="source_control">page_control</span>
+                Changes
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="history">history</span>
+                History
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT border-l-2 border-primary bg-surface-container text-primary cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="account_tree">account_tree</span>
+                Worktrees
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+                Settings
+            </a>
+</div>
+<div class="mt-auto flex flex-col gap-1 px-2 pt-4 border-t border-outline-variant">
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="help">help</span>
+                Docs
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="contact_support">contact_support</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="ml-sidebar-width flex-1 flex flex-col h-full bg-surface">
+<!-- TopNavBar -->
+<header class="h-toolbar-height w-full sticky top-0 border-b border-outline-variant bg-surface-container-low flex items-center justify-between px-container-padding z-10 cursor-default select-none">
+<div class="flex items-center gap-6 h-full">
+<span class="font-code-mono-bold text-code-mono-bold text-primary">GitPro</span>
+<nav class="flex h-full gap-4">
+<a class="flex items-center h-full text-on-surface-variant hover:text-primary transition-all" href="#">Main</a>
+<a class="flex items-center h-full text-on-surface-variant hover:text-primary transition-all" href="#">Branches</a>
+<a class="flex items-center h-full text-on-surface-variant hover:text-primary transition-all" href="#">Stash</a>
+<a class="flex items-center h-full text-on-surface-variant hover:text-primary transition-all" href="#">Conflict</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2">
+<button class="bg-surface-container-highest hover:bg-surface-bright text-on-surface px-3 py-1 rounded-DEFAULT border border-ghost font-ui-sans-bold text-ui-sans-bold transition-colors">Push</button>
+<button class="bg-primary-btn text-white px-3 py-1 rounded-DEFAULT font-ui-sans-bold text-ui-sans-bold hover:opacity-90 transition-opacity">Commit</button>
+</div>
+<div class="flex items-center gap-3 border-l border-outline-variant pl-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Worktrees Content Canvas -->
+<main class="flex-1 overflow-y-auto p-6 bg-surface">
+<!-- Header & Explanatory Text -->
+<div class="max-w-5xl mx-auto mb-8">
+<div class="flex items-start justify-between mb-4">
+<div>
+<h2 class="font-ui-sans-bold text-2xl text-on-surface mb-2">Worktrees</h2>
+<p class="text-on-surface-variant max-w-2xl">
+                            Git worktrees allow you to check out multiple branches of a single repository in different directories simultaneously. This is ideal for quickly fixing a bug on another branch without stashing or committing your current work.
+                        </p>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-2 bg-surface-container-highest hover:bg-surface-bright text-on-surface px-3 py-2 rounded-DEFAULT border border-ghost transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="cleaning_services">cleaning_services</span>
+                            Prune Dead Trees
+                        </button>
+<button class="flex items-center gap-2 bg-success text-white px-4 py-2 rounded-DEFAULT font-ui-sans-bold text-ui-sans-bold hover:opacity-90 transition-opacity" onclick="document.getElementById('addWorktreeDialog').classList.remove('hidden')">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+                            Add Worktree
+                        </button>
+</div>
+</div>
+</div>
+<!-- Worktrees List -->
+<div class="max-w-5xl mx-auto flex flex-col gap-4">
+<!-- Main Repository (Base) -->
+<div class="bg-surface-container rounded-lg border border-outline-variant p-4 flex items-center justify-between group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-surface-container-highest flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="home">home</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-ui-sans-bold text-on-surface">GitPro-Core (Main)</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest border border-ghost font-code-mono-reg text-code-mono-reg text-on-surface-variant">/Users/dev/projects/gitpro-core</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px] text-primary" data-icon="call_split">call_split</span>
+<span class="font-code-mono-reg text-code-mono-reg text-primary">main</span>
+<span class="text-on-surface-variant mx-1">•</span>
+<span class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">Clean</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Open in Editor">
+<span class="material-symbols-outlined text-[20px]" data-icon="code">code</span>
+</button>
+</div>
+</div>
+<!-- Linked Worktree 1 -->
+<div class="bg-surface-container rounded-lg border border-outline-variant p-4 flex items-center justify-between group relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-[2px] bg-primary"></div>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-surface-container-highest flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-primary" data-icon="account_tree">account_tree</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-ui-sans-bold text-on-surface">feature-ui-rework</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest border border-ghost font-code-mono-reg text-code-mono-reg text-on-surface-variant">/Users/dev/projects/gitpro-core-ui-rework</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px] text-tertiary" data-icon="call_split">call_split</span>
+<span class="font-code-mono-reg text-code-mono-reg text-tertiary">feature/ui-rework-v2</span>
+<span class="text-on-surface-variant mx-1">•</span>
+<span class="font-ui-sans-sm text-ui-sans-sm text-secondary">3 uncommitted changes</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Open in Editor">
+<span class="material-symbols-outlined text-[20px]" data-icon="code">code</span>
+</button>
+<button class="p-2 rounded hover:bg-error-container text-on-surface-variant hover:text-error transition-colors" title="Remove Worktree">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+<!-- Linked Worktree 2 -->
+<div class="bg-surface-container rounded-lg border border-outline-variant p-4 flex items-center justify-between group relative overflow-hidden">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-surface-container-highest flex items-center justify-center border border-outline-variant">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="account_tree">account_tree</span>
+</div>
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-ui-sans-bold text-on-surface">hotfix-auth-bug</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-highest border border-ghost font-code-mono-reg text-code-mono-reg text-on-surface-variant">/Users/dev/projects/gitpro-core-hotfix</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px] text-error" data-icon="call_split">call_split</span>
+<span class="font-code-mono-reg text-code-mono-reg text-error">hotfix/oauth-token-refresh</span>
+<span class="text-on-surface-variant mx-1">•</span>
+<span class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">Clean</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-2 rounded hover:bg-surface-container-high text-on-surface-variant transition-colors" title="Open in Editor">
+<span class="material-symbols-outlined text-[20px]" data-icon="code">code</span>
+</button>
+<button class="p-2 rounded hover:bg-error-container text-on-surface-variant hover:text-error transition-colors" title="Remove Worktree">
+<span class="material-symbols-outlined text-[20px]" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Add Worktree Dialog Overlay -->
+<div class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" id="addWorktreeDialog">
+<div class="bg-[#21262D] w-full max-w-lg rounded-xl border border-outline-variant level-2-shadow overflow-hidden flex flex-col">
+<div class="flex items-center justify-between p-4 border-b border-outline-variant">
+<h3 class="font-ui-sans-bold text-ui-sans-bold text-on-surface">Add New Worktree</h3>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors" onclick="document.getElementById('addWorktreeDialog').classList.add('hidden')">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<div class="p-6 flex flex-col gap-5">
+<div class="flex flex-col gap-2">
+<label class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">Branch to checkout</label>
+<div class="relative">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-on-surface-variant" data-icon="call_split">call_split</span>
+<input class="w-full bg-[#0D1117] border border-outline-variant rounded-DEFAULT py-2 pl-10 pr-3 text-on-surface font-code-mono-reg text-code-mono-reg focus:outline-none focus-glow placeholder-on-surface-variant/50" placeholder="Select or type branch name..." type="text"/>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">Destination Path</label>
+<div class="flex gap-2">
+<div class="relative flex-1">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[18px] text-on-surface-variant" data-icon="folder">folder</span>
+<input class="w-full bg-[#0D1117] border border-outline-variant rounded-DEFAULT py-2 pl-10 pr-3 text-on-surface font-code-mono-reg text-code-mono-reg focus:outline-none focus-glow" type="text" value="/Users/dev/projects/gitpro-core-[branch]"/>
+</div>
+<button class="bg-surface-container-highest hover:bg-surface-bright border border-ghost rounded-DEFAULT px-4 text-on-surface font-ui-sans-bold text-ui-sans-bold transition-colors">
+                            Browse
+                        </button>
+</div>
+<p class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant/70 mt-1">A new directory will be created at this path if it doesn't exist.</p>
+</div>
+</div>
+<div class="p-4 border-t border-outline-variant bg-surface-container-low flex justify-end gap-3">
+<button class="px-4 py-2 rounded-DEFAULT border border-ghost hover:bg-surface-container-highest text-on-surface font-ui-sans-bold text-ui-sans-bold transition-colors" onclick="document.getElementById('addWorktreeDialog').classList.add('hidden')">Cancel</button>
+<button class="px-4 py-2 rounded-DEFAULT bg-primary-btn text-white font-ui-sans-bold text-ui-sans-bold hover:opacity-90 transition-opacity">Create Worktree</button>
+</div>
+</div>
+</div>
+</body></html>

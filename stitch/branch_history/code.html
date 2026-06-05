@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GitPro - Commit Graph</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-surface-variant": "#c0c7d4",
+                      "on-secondary-container": "#00320a",
+                      "on-surface": "#dae3ee",
+                      "tertiary-fixed": "#ffdeaa",
+                      "surface-bright": "#313a43",
+                      "on-primary-fixed-variant": "#004882",
+                      "primary": "#a2c9ff",
+                      "on-primary": "#00315c",
+                      "on-tertiary": "#422c00",
+                      "surface-container-low": "#141c24",
+                      "primary-fixed-dim": "#a2c9ff",
+                      "tertiary": "#fabc45",
+                      "secondary-container": "#27a640",
+                      "background": "#0b141c",
+                      "inverse-surface": "#dae3ee",
+                      "surface-container": "#182028",
+                      "surface-container-highest": "#2d363e",
+                      "surface-tint": "#a2c9ff",
+                      "surface-dim": "#0b141c",
+                      "surface-container-high": "#222b33",
+                      "on-tertiary-fixed-variant": "#5f4100",
+                      "secondary": "#67df70",
+                      "on-primary-container": "#003a6b",
+                      "outline": "#8b919d",
+                      "error-container": "#93000a",
+                      "tertiary-fixed-dim": "#fabc45",
+                      "on-tertiary-fixed": "#271900",
+                      "on-error-container": "#ffdad6",
+                      "primary-container": "#58a6ff",
+                      "secondary-fixed": "#83fc89",
+                      "on-background": "#dae3ee",
+                      "on-error": "#690005",
+                      "on-primary-fixed": "#001c38",
+                      "inverse-primary": "#0060aa",
+                      "on-secondary-fixed": "#002105",
+                      "error": "#ffb4ab",
+                      "on-secondary-fixed-variant": "#005317",
+                      "surface-variant": "#2d363e",
+                      "tertiary-container": "#d29922",
+                      "on-secondary": "#00390d",
+                      "outline-variant": "#414752",
+                      "surface": "#0b141c",
+                      "primary-fixed": "#d3e4ff",
+                      "secondary-fixed-dim": "#67df70",
+                      "surface-container-lowest": "#060f16",
+                      "on-tertiary-container": "#4d3500",
+                      "inverse-on-surface": "#29313a"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "sidebar-width": "240px",
+                      "element-gap": "8px",
+                      "container-padding": "12px",
+                      "unit": "4px",
+                      "toolbar-height": "40px"
+              },
+              "fontFamily": {
+                      "code-mono-bold": [
+                              "JetBrains Mono"
+                      ],
+                      "ui-sans-bold": [
+                              "Inter"
+                      ],
+                      "code-mono-reg": [
+                              "JetBrains Mono"
+                      ],
+                      "ui-sans-reg": [
+                              "Inter"
+                      ],
+                      "ui-sans-sm": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "code-mono-bold": [
+                              "12px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "ui-sans-bold": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "code-mono-reg": [
+                              "12px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "ui-sans-reg": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "ui-sans-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+            },
+          }
+        }
+      </script>
+<style>
+        .commit-line {
+            width: 2px;
+            background-color: #414752; /* outline-variant */
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 23px; /* Center of the avatar/dot area */
+            z-index: 0;
+        }
+        .commit-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #a2c9ff; /* primary */
+            border: 2px solid #0b141c; /* background */
+            position: absolute;
+            left: 19px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        .commit-dot.branch {
+            background-color: #67df70; /* secondary */
+        }
+        
+        /* Custom Scrollbar for dark mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b141c; /* surface */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #414752; /* outline-variant */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #8b919d; /* outline */
+        }
+      </style>
+</head>
+<body class="bg-background text-on-surface font-ui-sans-reg text-ui-sans-reg h-screen overflow-hidden flex flex-col antialiased">
+<!-- TopNavBar -->
+<nav class="bg-surface-container-low text-primary font-ui-sans-bold text-ui-sans-bold h-toolbar-height w-full sticky top-0 border-b border-outline-variant flat no shadows cursor-default select-none flex items-center justify-between px-container-padding z-50">
+<div class="flex items-center gap-element-gap">
+<span class="font-code-mono-bold text-code-mono-bold text-primary mr-4 tracking-tight">GitPro</span>
+<!-- Search Commits Bar (Requested in prompt) -->
+<div class="relative flex items-center ml-4">
+<span class="material-symbols-outlined absolute left-2 text-on-surface-variant text-[16px]">search</span>
+<input class="bg-surface-container h-[28px] pl-8 pr-3 py-1 rounded text-ui-sans-sm font-ui-sans-sm text-on-surface border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary outline-none w-[200px] transition-all placeholder:text-on-surface-variant" placeholder="Search Commits..." type="text"/>
+</div>
+<div class="flex items-center ml-4 space-x-container-padding">
+<div class="text-on-surface-variant hover:text-primary transition-all cursor-pointer">Main</div>
+<div class="text-on-surface-variant hover:text-primary transition-all cursor-pointer">Branches</div>
+<div class="text-primary border-b-2 border-primary pb-1 cursor-pointer">History</div> <!-- Semantic active tab -->
+<div class="text-on-surface-variant hover:text-primary transition-all cursor-pointer">Stash</div>
+<div class="text-on-surface-variant hover:text-primary transition-all cursor-pointer">Conflict</div>
+</div>
+</div>
+<div class="flex items-center gap-element-gap">
+<!-- Top toolbar requested actions -->
+<button class="bg-surface-container-highest hover:bg-surface-bright text-on-surface border border-outline-variant rounded px-3 py-1 font-ui-sans-sm text-ui-sans-sm transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">call_split</span> Branch
+            </button>
+<button class="bg-surface-container-highest hover:bg-surface-bright text-on-surface border border-outline-variant rounded px-3 py-1 font-ui-sans-sm text-ui-sans-sm transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">merge</span> Merge
+            </button>
+<button class="bg-surface-container-highest hover:bg-surface-bright text-on-surface border border-outline-variant rounded px-3 py-1 font-ui-sans-sm text-ui-sans-sm transition-colors flex items-center gap-1 mr-4">
+<span class="material-symbols-outlined text-[16px]">rebase</span> Rebase
+            </button>
+<button class="text-on-surface-variant hover:text-primary transition-all cursor-pointer flex items-center justify-center p-1">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-all cursor-pointer flex items-center justify-center p-1">
+<span class="material-symbols-outlined text-[20px]" data-icon="account_circle">account_circle</span>
+</button>
+<button class="bg-surface-container-highest hover:bg-surface-bright border border-outline-variant text-on-surface px-3 py-1 rounded ml-2 transition-colors">Push</button>
+<button class="bg-[#238636] hover:bg-[#2ea043] text-white px-3 py-1 rounded ml-2 border border-[rgba(240,246,252,0.1)] transition-colors">Commit</button>
+</div>
+</nav>
+<div class="flex flex-1 overflow-hidden">
+<!-- SideNavBar -->
+<aside class="bg-surface-container-lowest text-primary font-ui-sans-reg text-ui-sans-reg w-sidebar-width h-full flex-shrink-0 border-r border-outline-variant flat no shadows flex flex-col py-container-padding z-10 relative">
+<div class="px-container-padding mb-4 flex items-center gap-3">
+<img alt="Developer Profile" class="w-8 h-8 rounded-full border border-outline-variant object-cover" data-alt="A close up studio portrait of a young male software developer with a neutral expression. He has short dark hair and is wearing a dark, minimalist t-shirt. The lighting is soft and cinematic, highlighting his features against a dark, out-of-focus background. The overall aesthetic is professional, modern, and slightly moody, fitting a high-tech corporate environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJbg63Z7Nlz_J_PID1A_HS6yIU8TQBczpHKFxRG-R6GR42HJXjni9Ff3_q8DL0F1nn02sNWx8YwXofYN01crI_gPFSiIER-7M3C9Fv9kR9jU0Kqr09dmjkOTlcYxQnFwUr7RvpCZ6hYwbPt9dkyt6mluQ-R-qvlx03i5sBTbfrhxcdMITG_fOMn8peAf6fBzjEYravb9uqoIuojlc_672zyKOrKA92o2aywar2fLyHZ_id4BAkeVcqBEUp6OXvEgg6a2SyVnZCG6fJ"/>
+<div>
+<div class="font-ui-sans-bold text-ui-sans-bold text-on-surface leading-tight">GitPro Desktop</div>
+<div class="font-code-mono-reg text-code-mono-reg text-on-surface-variant text-[10px]">v2.4.0-stable</div>
+</div>
+</div>
+<div class="px-container-padding mb-4">
+<button class="w-full bg-surface-container-highest hover:bg-surface-bright text-on-surface border border-outline-variant rounded py-1.5 flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-[16px]">add</span> New Repository
+                </button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-1 mt-2">
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80 px-4 py-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px]" data-icon="database">database</span> Repositories
+                </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80 px-4 py-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px]" data-icon="source_control">page_control</span> Changes
+                </div>
+<div class="border-l-2 border-primary bg-surface-container text-primary cursor-pointer active:opacity-80 px-4 py-2 flex items-center gap-3 ml-[-1px]">
+<span class="material-symbols-outlined text-[18px]" data-icon="history">history</span> History
+                </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80 px-4 py-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px]" data-icon="account_tree">account_tree</span> Worktrees
+                </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80 px-4 py-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px]" data-icon="settings">settings</span> Settings
+                </div>
+</div>
+<div class="mt-auto border-t border-outline-variant pt-2 space-y-1">
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80 px-4 py-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px]" data-icon="help">help</span> Docs
+                </div>
+<div class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80 px-4 py-2 flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px]" data-icon="contact_support">contact_support</span> Support
+                </div>
+</div>
+</aside>
+<!-- Main Content Area - Commit Graph -->
+<main class="flex-1 bg-background relative flex flex-col">
+<!-- Header Row for the Graph -->
+<div class="flex items-center px-4 py-2 bg-surface-container border-b border-outline-variant font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider sticky top-0 z-20">
+<div class="w-12 text-center">Graph</div>
+<div class="flex-1 pl-4">Description</div>
+<div class="w-24 text-center">Commit</div>
+<div class="w-32 text-left pl-4">Author</div>
+<div class="w-24 text-right">Date</div>
+</div>
+<!-- Scrollable Graph List -->
+<div class="flex-1 overflow-y-auto relative p-0 m-0">
+<!-- Commit Item 1 (Selected) -->
+<div class="flex items-center px-4 py-2 bg-surface-container-high border-l-2 border-primary border-b border-outline-variant relative hover:bg-surface-bright transition-colors cursor-pointer group">
+<div class="commit-line" style="top: 50%;"></div>
+<div class="commit-dot"></div>
+<div class="w-12 h-6 flex items-center justify-center pl-8">
+<!-- Graph visual spacing -->
+</div>
+<div class="flex-1 pl-4 flex items-center gap-2">
+<span class="font-ui-sans-bold text-ui-sans-bold text-on-surface truncate">Merge pull request #42 from feature/worktree-ui</span>
+<span class="bg-primary-container text-on-primary-container font-code-mono-reg text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 border border-primary/30">
+<span class="material-symbols-outlined text-[12px]">account_tree</span> main
+                        </span>
+</div>
+<div class="w-24 text-center font-code-mono-reg text-code-mono-reg text-primary">a1b2c3d</div>
+<div class="w-32 flex items-center pl-4 gap-2">
+<div class="w-5 h-5 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container font-ui-sans-sm text-[10px]"> JD </div>
+<span class="text-on-surface truncate text-ui-sans-sm">J. Doe</span>
+</div>
+<div class="w-24 text-right text-on-surface-variant text-ui-sans-sm">10 min ago</div>
+</div>
+<!-- Commit Item 2 -->
+<div class="flex items-center px-4 py-2 border-l-2 border-transparent border-b border-outline-variant relative hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="commit-line"></div>
+<div class="commit-dot branch" style="left: 31px;"></div>
+<!-- Branch line connecting back to main -->
+<div class="absolute w-[14px] h-2 border-b-2 border-l-2 border-[#67df70] rounded-bl-lg" style="left: 23px; top: 0; bottom: 50%;"></div>
+<div class="w-12 h-6 flex items-center justify-center pl-10">
+</div>
+<div class="flex-1 pl-4 flex items-center gap-2">
+<span class="text-on-surface truncate">Implement new worktree management UI components</span>
+<span class="bg-surface-variant text-on-surface-variant font-code-mono-reg text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 border border-outline-variant">
+<span class="material-symbols-outlined text-[12px]">call_split</span> feature/worktree-ui
+                        </span>
+</div>
+<div class="w-24 text-center font-code-mono-reg text-code-mono-reg text-on-surface-variant group-hover:text-primary transition-colors">e5f6g7h</div>
+<div class="w-32 flex items-center pl-4 gap-2">
+<img alt="Author" class="w-5 h-5 rounded-full object-cover" data-alt="A close-up studio portrait of a young woman with long wavy brown hair, smiling gently. She wears a casual dark sweater. The lighting is soft and even, typical of a professional corporate headshot. The background is a solid dark gray, seamlessly blending with the dark mode UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3IVlUK5rrUjn8Ygqs1eKnuybdZK12tgi8E77TMoKM6vfi3hvW5g1MT_TYpv3xQFbYZ-zjOlhyoJxPNUUVUXcDOV5vqmVjs5edSqcrV6EnfFGlh9BuJe2eD6n1bnKastVRGaRWJ5ZSWxvUKLdonOnJK5ac8VAZDKHHk7E9syX8sFOhRNg-e4UAOrP1K6ewyfOv41l6_by_zu4D8eS9WT5TNm5LpqeYnNXhKX7Bbg_AYFDpDwMRQeQK7KXmp5_b9CfW2sBq8lHtg7Yx"/>
+<span class="text-on-surface truncate text-ui-sans-sm">S. Smith</span>
+</div>
+<div class="w-24 text-right text-on-surface-variant text-ui-sans-sm">1 hr ago</div>
+</div>
+<!-- Commit Item 3 -->
+<div class="flex items-center px-4 py-2 border-l-2 border-transparent border-b border-outline-variant relative hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="commit-line"></div>
+<!-- Branch line continues -->
+<div class="absolute w-[2px] bg-[#67df70]" style="left: 35px; top: 0; bottom: 0; z-index:0;"></div>
+<div class="commit-dot" style="background-color: #a2c9ff;"></div>
+<div class="w-12 h-6 flex items-center justify-center pl-8">
+</div>
+<div class="flex-1 pl-4 flex items-center gap-2">
+<span class="text-on-surface truncate">Fix typo in documentation README</span>
+</div>
+<div class="w-24 text-center font-code-mono-reg text-code-mono-reg text-on-surface-variant group-hover:text-primary transition-colors">8i9j0k1</div>
+<div class="w-32 flex items-center pl-4 gap-2">
+<div class="w-5 h-5 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-ui-sans-sm text-[10px]"> MR </div>
+<span class="text-on-surface truncate text-ui-sans-sm">M. Ross</span>
+</div>
+<div class="w-24 text-right text-on-surface-variant text-ui-sans-sm">2 hrs ago</div>
+</div>
+<!-- Commit Item 4 -->
+<div class="flex items-center px-4 py-2 border-l-2 border-transparent border-b border-outline-variant relative hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="commit-line"></div>
+<div class="commit-dot branch" style="left: 31px;"></div>
+<div class="absolute w-[2px] bg-[#67df70]" style="left: 35px; top: 0; bottom: 50%; z-index:0;"></div>
+<!-- Connecting branch back to main -->
+<div class="w-12 h-6 flex items-center justify-center pl-10">
+</div>
+<div class="flex-1 pl-4 flex items-center gap-2">
+<span class="text-on-surface truncate">Setup shared component JSON structure</span>
+</div>
+<div class="w-24 text-center font-code-mono-reg text-code-mono-reg text-on-surface-variant group-hover:text-primary transition-colors">l2m3n4o</div>
+<div class="w-32 flex items-center pl-4 gap-2">
+<img alt="Author" class="w-5 h-5 rounded-full object-cover" data-alt="A close-up studio portrait of a young woman with long wavy brown hair, smiling gently. She wears a casual dark sweater. The lighting is soft and even, typical of a professional corporate headshot. The background is a solid dark gray, seamlessly blending with the dark mode UI aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBCIAqEJbCz-uKRQzDBj5L3FLkhLbKR_S9G9q5G32QwjsHx0ejvsT2MAvF1-9lj8_BVswOz6pEuUGW0ImVnyihH_R0ZrEK0NKsUKCI-HQS54nC7l_Gwau6Gov8LXlPzhE7g3i_uqVT5H72av2Ys536ofqIiD31T8ORjtzfkC4JPxyP2A7zQGLn0V30sBE4QiDEw8zSS4ez0MM8by1Ia0FuFf0NMD9pRh5k1x-DCjqvSum4FVGBaOVh1VJsbkw8rWXrL8QHXYu44bENb"/>
+<span class="text-on-surface truncate text-ui-sans-sm">S. Smith</span>
+</div>
+<div class="w-24 text-right text-on-surface-variant text-ui-sans-sm">4 hrs ago</div>
+</div>
+<!-- Commit Item 5 -->
+<div class="flex items-center px-4 py-2 border-l-2 border-transparent border-b border-outline-variant relative hover:bg-surface-container-high transition-colors cursor-pointer group">
+<div class="commit-line" style="bottom: 50%;"></div>
+<div class="commit-dot" style="background-color: #a2c9ff;"></div>
+<div class="absolute w-[14px] h-2 border-t-2 border-l-2 border-[#67df70] rounded-tl-lg" style="left: 23px; top: 50%; bottom: 0;"></div>
+<div class="w-12 h-6 flex items-center justify-center pl-8">
+</div>
+<div class="flex-1 pl-4 flex items-center gap-2">
+<span class="text-on-surface truncate">Initial commit: Base UI shell and theming</span>
+<span class="bg-surface-variant text-on-surface-variant font-code-mono-reg text-[10px] px-1.5 py-0.5 rounded flex items-center gap-1 border border-outline-variant">
+<span class="material-symbols-outlined text-[12px]">sell</span> v2.4.0-rc1
+                        </span>
+</div>
+<div class="w-24 text-center font-code-mono-reg text-code-mono-reg text-on-surface-variant group-hover:text-primary transition-colors">p5q6r7s</div>
+<div class="w-32 flex items-center pl-4 gap-2">
+<div class="w-5 h-5 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container font-ui-sans-sm text-[10px]"> JD </div>
+<span class="text-on-surface truncate text-ui-sans-sm">J. Doe</span>
+</div>
+<div class="w-24 text-right text-on-surface-variant text-ui-sans-sm">Yesterday</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

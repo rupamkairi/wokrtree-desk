@@ -91,8 +91,28 @@ export type BranchRef = {
   fullRef: string;
   name: string;
   sha: string;
+  committerDate?: string;
   checkedOut: boolean;
   checkedOutPath?: string;
+  isDefault: boolean;
+};
+
+export type CommitSummary = {
+  hash: string;
+  shortHash: string;
+  author: string;
+  date: string;
+  subject: string;
+  parents: string[];
+  isMerge: boolean;
+};
+
+export type CommitPage = {
+  branchName: string;
+  commits: CommitSummary[];
+  skip: number;
+  limit: number;
+  hasMore: boolean;
 };
 
 export type BranchMode = "existing" | "new";

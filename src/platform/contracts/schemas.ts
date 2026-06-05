@@ -60,8 +60,35 @@ export const branchRefSchema = z.object({
   fullRef: z.string(),
   name: z.string(),
   sha: z.string(),
+  committerDate: z.string().optional(),
   checkedOut: z.boolean(),
   checkedOutPath: z.string().optional(),
+  isDefault: z.boolean(),
+});
+
+export const commitSummarySchema = z.object({
+  hash: z.string(),
+  shortHash: z.string(),
+  author: z.string(),
+  date: z.string(),
+  subject: z.string(),
+  parents: z.array(z.string()),
+  isMerge: z.boolean(),
+});
+
+export const commitPageSchema = z.object({
+  branchName: z.string(),
+  commits: z.array(commitSummarySchema),
+  skip: z.number().int().nonnegative(),
+  limit: z.number().int().positive(),
+  hasMore: z.boolean(),
+});
+
+export const getCommitsRequestSchema = z.object({
+  projectId: z.string().min(1),
+  branchName: z.string().min(1),
+  limit: z.number().int().positive().optional(),
+  skip: z.number().int().nonnegative().optional(),
 });
 
 export const operationDetailsSchema = z.object({

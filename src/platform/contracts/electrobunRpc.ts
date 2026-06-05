@@ -2,6 +2,7 @@ import type { RPCSchema } from "electrobun/bun";
 
 import type {
   BranchRef,
+  CommitPage,
   CreateWorktreePreview,
   CreateWorktreeRequest,
   CreateWorktreeResult,
@@ -40,6 +41,15 @@ type BunRequests = {
   getBranchRefs: {
     params: { projectId: string };
     response: BranchRef[];
+  };
+  getCommits: {
+    params: {
+      projectId: string;
+      branchName: string;
+      limit?: number;
+      skip?: number;
+    };
+    response: CommitPage;
   };
   previewCreateWorktree: {
     params: CreateWorktreeRequest;

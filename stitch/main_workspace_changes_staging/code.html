@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GitPro Desktop - Workspace</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        @layer utilities {
+            .diff-add {
+                background-color: rgba(63, 185, 80, 0.15);
+            }
+            .diff-remove {
+                background-color: rgba(248, 81, 73, 0.15);
+            }
+            .diff-text-add {
+                color: #83fc89; /* secondary-fixed */
+            }
+            .diff-text-remove {
+                color: #ffb4ab; /* error */
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        }
+    </style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#c0c7d4",
+                    "on-secondary-container": "#00320a",
+                    "on-surface": "#dae3ee",
+                    "tertiary-fixed": "#ffdeaa",
+                    "surface-bright": "#313a43",
+                    "on-primary-fixed-variant": "#004882",
+                    "primary": "#a2c9ff",
+                    "on-primary": "#00315c",
+                    "on-tertiary": "#422c00",
+                    "surface-container-low": "#141c24",
+                    "primary-fixed-dim": "#a2c9ff",
+                    "tertiary": "#fabc45",
+                    "secondary-container": "#27a640",
+                    "background": "#0b141c",
+                    "inverse-surface": "#dae3ee",
+                    "surface-container": "#182028",
+                    "surface-container-highest": "#2d363e",
+                    "surface-tint": "#a2c9ff",
+                    "surface-dim": "#0b141c",
+                    "surface-container-high": "#222b33",
+                    "on-tertiary-fixed-variant": "#5f4100",
+                    "secondary": "#67df70",
+                    "on-primary-container": "#003a6b",
+                    "outline": "#8b919d",
+                    "error-container": "#93000a",
+                    "tertiary-fixed-dim": "#fabc45",
+                    "on-tertiary-fixed": "#271900",
+                    "on-error-container": "#ffdad6",
+                    "primary-container": "#58a6ff",
+                    "secondary-fixed": "#83fc89",
+                    "on-background": "#dae3ee",
+                    "on-error": "#690005",
+                    "on-primary-fixed": "#001c38",
+                    "inverse-primary": "#0060aa",
+                    "on-secondary-fixed": "#002105",
+                    "error": "#ffb4ab",
+                    "on-secondary-fixed-variant": "#005317",
+                    "surface-variant": "#2d363e",
+                    "tertiary-container": "#d29922",
+                    "on-secondary": "#00390d",
+                    "outline-variant": "#414752",
+                    "surface": "#0b141c",
+                    "primary-fixed": "#d3e4ff",
+                    "secondary-fixed-dim": "#67df70",
+                    "surface-container-lowest": "#060f16",
+                    "on-tertiary-container": "#4d3500",
+                    "inverse-on-surface": "#29313a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "sidebar-width": "240px",
+                    "element-gap": "8px",
+                    "container-padding": "12px",
+                    "unit": "4px",
+                    "toolbar-height": "40px"
+            },
+            "fontFamily": {
+                    "code-mono-bold": ["JetBrains Mono"],
+                    "ui-sans-bold": ["Inter"],
+                    "code-mono-reg": ["JetBrains Mono"],
+                    "ui-sans-reg": ["Inter"],
+                    "ui-sans-sm": ["Inter"],
+                    "label-caps": ["Inter"]
+            },
+            "fontSize": {
+                    "code-mono-bold": ["12px", {"lineHeight": "20px", "fontWeight": "600"}],
+                    "ui-sans-bold": ["14px", {"lineHeight": "20px", "fontWeight": "600"}],
+                    "code-mono-reg": ["12px", {"lineHeight": "20px", "letterSpacing": "-0.02em", "fontWeight": "400"}],
+                    "ui-sans-reg": ["13px", {"lineHeight": "18px", "fontWeight": "400"}],
+                    "ui-sans-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}]
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-background text-on-background h-screen w-screen overflow-hidden flex font-ui-sans-reg text-ui-sans-reg selection:bg-primary-container selection:text-on-primary-container">
+<!-- Shared Component: SideNavBar -->
+<nav class="bg-surface-container-lowest w-sidebar-width h-full fixed left-0 top-0 border-r border-outline-variant flex flex-col py-container-padding z-20">
+<!-- Header -->
+<div class="px-container-padding mb-4 flex items-center gap-3">
+<div class="w-7 h-7 rounded bg-surface-container-highest flex items-center justify-center border border-outline-variant overflow-hidden">
+<img alt="Developer Profile" class="w-full h-full object-cover" data-alt="A tight, high-contrast headshot of a young professional in a studio setting with dramatic side lighting. The image serves as a generic profile avatar in a dark-mode software interface. Color grading is cool and slightly desaturated to match a technical environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC4gUd70brA4ztS3GYFDLgGPrQE2zx-U7UqM7mMeUNTNJkJr3MuMHHfmuj-VWMmiLgS_5xVHDN3K8VKaiRvuhPDGS2pUfzBlfpczHGBTeq0pIShCdFtAZd5D6IgIOlPh1SkaZ3CDXYb-xxHHL7Cup-3DKgNp0e6uxNp4LxDE7XO1snSPRNL7UARi9R7CACmQ0_RoYbWKdPmWiXcJyHA7TbwWjzgttM0GBbFHUq8MslVlpXM1Btok0Z3Zr8YSlfOfAUzkam3ax7NKItb"/>
+</div>
+<div>
+<div class="font-ui-sans-bold text-ui-sans-bold text-primary tracking-tight">GitPro Desktop</div>
+<div class="font-code-mono-reg text-[10px] text-on-surface-variant leading-none mt-0.5">v2.4.0-stable</div>
+</div>
+</div>
+<!-- CTA -->
+<div class="px-container-padding mb-4">
+<button class="w-full bg-surface-container hover:bg-surface-container-high transition-colors text-primary font-ui-sans-bold text-ui-sans-bold py-1.5 px-2 rounded border border-outline-variant flex items-center justify-center gap-2 cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[16px]">add</span> New Repository
+            </button>
+</div>
+<!-- Tabs -->
+<div class="flex-1 flex flex-col gap-1 px-container-padding">
+<div class="flex items-center gap-2 px-2 py-1.5 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[18px]">database</span> Repositories
+            </div>
+<!-- Active Tab -->
+<div class="flex items-center gap-2 px-2 py-1.5 rounded border-l-2 border-primary bg-surface-container text-primary cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">page_control</span> Changes
+                <span class="ml-auto bg-primary text-on-primary font-code-mono-bold text-[10px] px-1.5 py-0.5 rounded-full leading-none">3</span>
+</div>
+<div class="flex items-center gap-2 px-2 py-1.5 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[18px]">history</span> History
+            </div>
+<div class="flex items-center gap-2 px-2 py-1.5 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[18px]">account_tree</span> Worktrees
+            </div>
+<div class="flex items-center gap-2 px-2 py-1.5 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[18px]">settings</span> Settings
+            </div>
+</div>
+<!-- Footer Tabs -->
+<div class="mt-auto px-container-padding flex flex-col gap-1 pt-4 border-t border-surface-container">
+<div class="flex items-center gap-2 px-2 py-1.5 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[18px]">help</span> Docs
+            </div>
+<div class="flex items-center gap-2 px-2 py-1.5 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-[18px]">contact_support</span> Support
+            </div>
+</div>
+</nav>
+<!-- Main Application Area -->
+<div class="ml-sidebar-width flex-1 flex flex-col h-full bg-background relative">
+<!-- Shared Component: TopNavBar -->
+<header class="bg-surface-container-low h-toolbar-height w-full sticky top-0 border-b border-outline-variant flex items-center justify-between px-container-padding z-10 cursor-default select-none">
+<!-- Left: Logo & Nav -->
+<div class="flex items-center gap-6 h-full">
+<div class="font-code-mono-bold text-code-mono-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">account_tree</span> GitPro
+                </div>
+<div class="flex items-center gap-1 h-full">
+<div class="text-primary border-b-2 border-primary pb-1 font-ui-sans-bold text-ui-sans-bold px-3 pt-1 h-full flex items-center">Main</div>
+<div class="text-on-surface-variant hover:text-primary transition-all font-ui-sans-bold text-ui-sans-bold px-3 pt-1 h-full flex items-center cursor-pointer">Branches</div>
+<div class="text-on-surface-variant hover:text-primary transition-all font-ui-sans-bold text-ui-sans-bold px-3 pt-1 h-full flex items-center cursor-pointer">Stash</div>
+<div class="text-on-surface-variant hover:text-primary transition-all font-ui-sans-bold text-ui-sans-bold px-3 pt-1 h-full flex items-center cursor-pointer">Conflict</div>
+</div>
+</div>
+<!-- Right: Actions -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3 border-r border-outline-variant pr-4">
+<button class="flex items-center gap-1.5 font-ui-sans-sm text-ui-sans-sm text-on-surface-variant hover:text-primary transition-colors group">
+<span class="material-symbols-outlined text-[16px] group-hover:-translate-y-0.5 transition-transform">arrow_downward</span> 
+                        Pull 
+                        <span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface font-code-mono-reg leading-none ml-1">2</span>
+</button>
+<button class="flex items-center gap-1.5 font-ui-sans-sm text-ui-sans-sm text-on-surface-variant hover:text-primary transition-colors group">
+<span class="material-symbols-outlined text-[16px] group-hover:-translate-y-0.5 transition-transform">arrow_upward</span> 
+                        Push 
+                        <span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface-variant font-code-mono-reg leading-none ml-1 opacity-50">0</span>
+</button>
+</div>
+<div class="flex items-center gap-2">
+<!-- Required Trailing Actions -->
+<button class="bg-surface-container-highest hover:bg-surface-bright text-on-surface font-ui-sans-bold text-ui-sans-sm py-1 px-3 rounded border border-outline-variant transition-colors flex items-center gap-1">
+                        Push
+                    </button>
+<button class="bg-[#1F6FEB] hover:bg-[#388bfd] text-white font-ui-sans-bold text-ui-sans-sm py-1 px-3 rounded transition-colors flex items-center gap-1 border border-[rgba(240,246,252,0.1)]">
+                        Commit
+                    </button>
+</div>
+<div class="w-px h-4 bg-outline-variant mx-1"></div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-colors text-[18px]">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer transition-colors text-[18px]">account_circle</span>
+</div>
+</div>
+</header>
+<!-- Split Pane Workspace -->
+<main class="flex-1 flex overflow-hidden">
+<!-- Left Pane: Changes List -->
+<div class="w-[320px] border-r border-outline-variant flex flex-col bg-surface-container-lowest z-0 flex-shrink-0">
+<!-- Header -->
+<div class="p-container-padding pb-2 flex items-center justify-between">
+<span class="font-ui-sans-bold text-ui-sans-bold text-on-surface">Changes</span>
+<span class="font-ui-sans-sm text-ui-sans-sm text-on-surface-variant">3 files</span>
+</div>
+<!-- File List (Scrollable) -->
+<div class="flex-1 overflow-y-auto scrollbar-hide flex flex-col gap-4 p-container-padding pt-0">
+<!-- Staged Section -->
+<div>
+<div class="flex items-center justify-between mb-1 group">
+<label class="flex items-center gap-2 cursor-pointer font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+<input checked="" class="w-3.5 h-3.5 rounded-sm bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+                                Staged Changes
+                            </label>
+<span class="text-xs text-on-surface-variant bg-surface-container px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-primary">Unstage All</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<!-- File Item (Active) -->
+<div class="flex items-center gap-2 p-1.5 -mx-1.5 rounded bg-surface-container border-l-2 border-primary cursor-pointer group">
+<input checked="" class="w-3 h-3 rounded-sm bg-surface-container border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+<span class="material-symbols-outlined text-[14px] text-tertiary-container">draft</span>
+<div class="flex-1 min-w-0 flex items-center justify-between">
+<span class="font-code-mono-reg text-code-mono-reg text-on-surface truncate">src/components/Navigation.tsx</span>
+<span class="text-[10px] font-code-mono-bold text-secondary-fixed bg-[#238636]/20 px-1 rounded ml-2">M</span>
+</div>
+</div>
+<!-- File Item -->
+<div class="flex items-center gap-2 p-1.5 -mx-1.5 rounded hover:bg-surface-container-high transition-colors cursor-pointer group">
+<input checked="" class="w-3 h-3 rounded-sm bg-surface-container border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+<span class="material-symbols-outlined text-[14px] text-primary">css</span>
+<div class="flex-1 min-w-0 flex items-center justify-between">
+<span class="font-code-mono-reg text-code-mono-reg text-on-surface-variant group-hover:text-on-surface truncate">styles/globals.css</span>
+<span class="text-[10px] font-code-mono-bold text-secondary-fixed bg-[#238636]/20 px-1 rounded ml-2">A</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Unstaged Section -->
+<div>
+<div class="flex items-center justify-between mb-1 group">
+<label class="flex items-center gap-2 cursor-pointer font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">
+<input class="w-3.5 h-3.5 rounded-sm bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+                                Unstaged Changes
+                            </label>
+<span class="text-xs text-on-surface-variant bg-surface-container px-1.5 rounded opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer hover:text-primary">Stage All</span>
+</div>
+<div class="flex flex-col gap-0.5">
+<!-- File Item -->
+<div class="flex items-center gap-2 p-1.5 -mx-1.5 rounded hover:bg-surface-container-high transition-colors cursor-pointer group opacity-80">
+<input class="w-3 h-3 rounded-sm bg-surface-container border-outline-variant text-primary focus:ring-0" type="checkbox"/>
+<span class="material-symbols-outlined text-[14px] text-error">description</span>
+<div class="flex-1 min-w-0 flex items-center justify-between">
+<span class="font-code-mono-reg text-code-mono-reg text-on-surface-variant group-hover:text-on-surface truncate line-through decoration-error/50">docs/README-old.md</span>
+<span class="text-[10px] font-code-mono-bold text-error bg-error/20 px-1 rounded ml-2">D</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Commit Box -->
+<div class="p-container-padding border-t border-outline-variant bg-surface-container-lowest shrink-0">
+<div class="flex flex-col gap-2">
+<div class="relative">
+<img alt="Avatar" class="w-5 h-5 rounded-full absolute top-2 left-2 z-10" data-alt="A very small, stylized avatar image used inline within an input field. Dark background with light blue initials." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAuPn9Lq4XwV-rAPviRmpjPAdb9aRslaJo3hZVXCfHsRMvtbWG7vQMUR4oLE4g4tKc-e13XCG6cDIcFZeuMyDJpfZ__w0Z-ENbYs-dZmJJSZ5mDDR_NvzQj5okR9awpbIzGrIs5B4043Pefo3y3SCrc0sbvbmSb0Z2P9s7RLFD61qecWEW_ZpJFpU6AA6I3dSltEV9Gw7CD0cZ6ENzyJlWdRJtQecVO3-SvualyB3kAQ_jL6KGe5yQjSTWH7yKkD95LH0PW2Lrb6r5j"/>
+<textarea class="w-full bg-surface-container border border-outline-variant rounded p-2 pl-9 font-ui-sans-sm text-ui-sans-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none h-8 min-h-[32px] overflow-hidden" placeholder="Summary (Required)" rows="1"></textarea>
+</div>
+<textarea class="w-full bg-surface-container border border-outline-variant rounded p-2 font-ui-sans-sm text-ui-sans-sm text-on-surface placeholder:text-on-surface-variant focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none h-20" placeholder="Description"></textarea>
+<div class="flex items-center justify-between mt-1">
+<label class="flex items-center gap-1.5 cursor-pointer text-on-surface-variant hover:text-on-surface transition-colors">
+<input class="w-3.5 h-3.5 rounded-sm bg-surface-container border-outline-variant text-primary focus:ring-primary focus:ring-offset-background" type="checkbox"/>
+<span class="font-ui-sans-sm text-ui-sans-sm">Amend</span>
+</label>
+<button class="bg-[#238636] hover:bg-[#2ea043] text-white font-ui-sans-bold text-ui-sans-sm py-1.5 px-4 rounded transition-colors flex items-center gap-1 shadow-[0_1px_0_rgba(27,31,36,0.1)]">
+                                Commit to <span class="font-code-mono-bold">main</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Pane: Diff Viewer (Center Pane) -->
+<div class="flex-1 flex flex-col bg-surface overflow-hidden">
+<!-- Diff Header -->
+<div class="h-toolbar-height border-b border-outline-variant bg-surface-container-low flex items-center justify-between px-container-padding shrink-0">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-tertiary-container">draft</span>
+<span class="font-code-mono-reg text-code-mono-reg text-on-surface">src/components/Navigation.tsx</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container border border-outline-variant text-on-surface-variant font-code-mono-reg text-[10px] ml-2">Modified</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-1 rounded hover:bg-surface-container transition-colors text-on-surface-variant hover:text-on-surface" title="Open File">
+<span class="material-symbols-outlined text-[16px]">open_in_new</span>
+</button>
+<button class="p-1 rounded hover:bg-surface-container transition-colors text-on-surface-variant hover:text-error" title="Discard Changes">
+<span class="material-symbols-outlined text-[16px]">undo</span>
+</button>
+</div>
+</div>
+<!-- Diff Content Area -->
+<div class="flex-1 overflow-auto font-code-mono-reg text-code-mono-reg bg-[#0D1117]">
+<!-- Code Block -->
+<div class="flex w-full leading-5">
+<!-- Line Numbers Column -->
+<div class="w-12 bg-[#161B22] border-r border-outline-variant flex flex-col text-right pr-2 py-2 text-on-surface-variant select-none shrink-0 opacity-50">
+<div>42</div>
+<div>43</div>
+<div>44</div>
+<div>45</div>
+<div>46</div>
+<div>47</div>
+<div>48</div>
+<div>49</div>
+<div>50</div>
+</div>
+<!-- Second Line Numbers (Right side of split diff typically, but stacked here for simplicity/density) -->
+<div class="w-12 bg-[#161B22] border-r border-outline-variant flex flex-col text-right pr-2 py-2 text-on-surface-variant select-none shrink-0 opacity-50">
+<div>42</div>
+<div>43</div>
+<div>44</div>
+<div>45</div>
+<div> </div>
+<div> </div>
+<div>46</div>
+<div>47</div>
+<div>48</div>
+</div>
+<!-- Code Content Column -->
+<div class="flex-1 py-2 flex flex-col whitespace-pre min-w-max">
+<!-- Unchanged Context -->
+<div class="px-4 text-on-surface-variant"> <span class="text-[#79c0ff]">return</span> (</div>
+<div class="px-4 text-on-surface-variant">      &lt;<span class="text-[#7ee787]">nav</span> <span class="text-[#79c0ff]">className</span>=<span class="text-[#a5d6ff]">"flex flex-col h-full bg-surface"</span>&gt;</div>
+<div class="px-4 text-on-surface-variant">        &lt;<span class="text-[#7ee787]">div</span> <span class="text-[#79c0ff]">className</span>=<span class="text-[#a5d6ff]">"p-4 border-b border-outline"</span>&gt;</div>
+<!-- Removed Lines -->
+<div class="px-4 diff-remove flex relative">
+<div class="absolute left-1 top-0 text-error">-</div>
+<span class="text-on-surface ml-3">          &lt;<span class="text-[#7ee787]">h1</span> <span class="text-[#79c0ff]">className</span>=<span class="text-[#a5d6ff]">"text-lg <span class="diff-text-remove bg-[rgba(248,81,73,0.3)]">font-semibold text-gray-900</span>"</span>&gt;Menu&lt;/<span class="text-[#7ee787]">h1</span>&gt;</span>
+</div>
+<!-- Added Lines -->
+<div class="px-4 diff-add flex relative">
+<div class="absolute left-1 top-0 text-secondary-fixed">+</div>
+<span class="text-on-surface ml-3">          &lt;<span class="text-[#7ee787]">div</span> <span class="text-[#79c0ff]">className</span>=<span class="text-[#a5d6ff]">"flex items-center gap-2"</span>&gt;</span>
+</div>
+<div class="px-4 diff-add flex relative">
+<div class="absolute left-1 top-0 text-secondary-fixed">+</div>
+<span class="text-on-surface ml-3">            &lt;<span class="text-[#7ee787]">h1</span> <span class="text-[#79c0ff]">className</span>=<span class="text-[#a5d6ff]">"<span class="diff-text-add bg-[rgba(63,185,80,0.3)]">font-ui-sans-bold text-primary</span>"</span>&gt;GitPro Desktop&lt;/<span class="text-[#7ee787]">h1</span>&gt;</span>
+</div>
+<div class="px-4 diff-add flex relative">
+<div class="absolute left-1 top-0 text-secondary-fixed">+</div>
+<span class="text-on-surface ml-3">          &lt;/<span class="text-[#7ee787]">div</span>&gt;</span>
+</div>
+<!-- Unchanged Context -->
+<div class="px-4 text-on-surface-variant">        &lt;/<span class="text-[#7ee787]">div</span>&gt;</div>
+<div class="px-4 text-on-surface-variant">        &lt;<span class="text-[#7ee787]">ul</span> <span class="text-[#79c0ff]">className</span>=<span class="text-[#a5d6ff]">"flex-1 overflow-y-auto"</span>&gt;</div>
+<div class="px-4 text-on-surface-variant">          {<span class="text-[#79c0ff]">items</span>.map((item) =&gt; (</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

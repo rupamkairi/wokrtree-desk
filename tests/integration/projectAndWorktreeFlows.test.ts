@@ -8,7 +8,10 @@ import { loadProjectDetails } from "../../src/core/git/services/gitWorktreeServi
 import { createRepositoryFixture, NodeCommandRunner } from "./gitHelpers";
 
 function normalizeSystemPath(value: string) {
-  return path.resolve(value).replace(/^\/private\/var\//u, "/var/");
+  // macOS resolves /tmp and /var to /private/tmp and /private/var via symlink.
+  // git reports the realpath while path.resolve keeps the symlink form, so strip
+  // the /private prefix on both sides before comparing.
+  return path.resolve(value).replace(/^\/private(\/(?:tmp|var)\/)/u, "$1");
 }
 
 describe("project and worktree flows", () => {
