@@ -1,10 +1,11 @@
 import type { CommitSummary } from "../../domain/types";
 
 // Unit separator (US, 0x1f) splits fields within one commit record.
-// Records are NUL-separated by `git log -z`.
-const FIELD_SEPARATOR = "";
+// Records are NUL-separated by `git log -z`. Built explicitly rather than as a
+// raw literal so the control byte stays visible and grep-able in source.
+const FIELD_SEPARATOR = String.fromCharCode(0x1f);
 
-// git --format placeholders, joined by the unit separator above.
+// git --format placeholders, joined by the unit separator above (%x1f).
 export const COMMIT_LOG_FORMAT = ["%H", "%h", "%an", "%aI", "%P", "%s"].join(
   "%x1f",
 );
