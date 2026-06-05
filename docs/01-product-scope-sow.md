@@ -33,7 +33,16 @@ Worktree Desk provides a single desktop interface to execute and explain these w
 
 ## 4. MVP functional scope: v0.1
 
-### 4.1 Project registry
+> **Build status legend** (as of `v0.1.0`): ✅ Built · 🟡 Partial · 🚧 WIP (not yet
+> functional). This SOW remains the MVP target; markers below record what the
+> current build actually does.
+
+### 4.1 Project registry — 🟡 Partial
+
+> ✅ Locate + register a local repository, identity via common Git directory,
+> duplicate collapse across linked worktrees. 🚧 Remove-from-app, and the
+> Clone/Create entry points (marked 🚧 in the UI). Editor/resource rule storage
+> uses defaults only.
 
 The user can register a repository by selecting either its primary checkout or any linked worktree directory.
 
@@ -45,7 +54,10 @@ The application must:
 - store display name, resolved primary/worktree information, preferred worktree root, editor and resource rules;
 - remove a project from the application without deleting repository files.
 
-### 4.2 Multi-project dashboard
+### 4.2 Multi-project dashboard — ✅ Built
+
+> Recent Projects list with name, path, worktree count and clean/modified
+> summary; project filter. Branch and worktree-path search is 🚧.
 
 The application must show all registered projects.
 
@@ -60,7 +72,12 @@ Each project summary must display:
 
 Search must match project name, branch name and worktree path.
 
-### 4.3 Worktree inventory and status
+### 4.3 Worktree inventory and status — 🟡 Partial
+
+> ✅ Read-only worktree board (branch, path, clean/modified/untracked status,
+> locked/prunable). ✅ Open path. 🚧 All other operations — editor/terminal
+> launch, reveal, copy path, lock/unlock, move, remove, repair, prune. Branch
+> list + paged commit history (per branch) is ✅ built in the Repositories view.
 
 For a selected project, show each worktree with:
 
@@ -85,7 +102,10 @@ Required operations:
 - repair;
 - preview prune candidates and then prune only after confirmation.
 
-### 4.4 Create-worktree workflow
+### 4.4 Create-worktree workflow — 🚧 WIP
+
+> Backend exists and is tested (preview + create services, RPC handlers), but
+> no UI surface is wired yet; the entry points are marked 🚧.
 
 A wizard must allow the user to:
 
@@ -109,7 +129,9 @@ Preflight checks must detect:
 
 A worktree may be created successfully even when a post-create setup command fails. In that case, it remains listed with a clear **Setup failed** state and an action to retry setup.
 
-### 4.5 Shared resource profiles
+### 4.5 Shared resource profiles — 🚧 WIP
+
+> Not implemented. No profile storage, linking, or ignore validation yet.
 
 A user can define project-specific named profiles, for example:
 
@@ -137,7 +159,9 @@ MVP requirements:
 - run ignore validation for secret resources before link creation;
 - block linking a secret target when it is not ignored, and display how to fix the ignore rule.
 
-### 4.6 Dependencies and setup actions
+### 4.6 Dependencies and setup actions — 🚧 WIP
+
+> Not implemented. No post-create command execution yet.
 
 MVP must support executing explicitly configured post-create commands, such as:
 
@@ -154,7 +178,11 @@ MVP rules:
 - Output from setup commands is displayed in the operation record and can be copied for debugging.
 - A failed setup command never hides a successful Git worktree creation.
 
-### 4.7 Error reporting and diagnostics
+### 4.7 Error reporting and diagnostics — 🟡 Partial
+
+> ✅ Operation records captured for git commands; ✅ inline error banner with
+> message + dismiss. 🚧 Structured error interface (titled, safe next action,
+> expandable technical details) and the operation-center panel.
 
 Every operation must create an operation record.
 
@@ -189,7 +217,10 @@ Errors that must be classified in MVP:
 
 Unknown failures must clearly say that Git or the OS returned an unclassified failure and must expose the untouched sanitized technical output.
 
-### 4.8 Preferences
+### 4.8 Preferences — 🚧 WIP
+
+> Not implemented. Settings is a 🚧 nav item; defaults are hardcoded
+> (editor `cursor`, terminal `terminal`, worktree root `<repo>-worktrees`).
 
 MVP settings include:
 
