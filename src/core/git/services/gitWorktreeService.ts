@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import path from "node:path";
 
 import type {
@@ -6,6 +7,7 @@ import type {
   ProjectDetails,
   RepositoryInfo,
   WorktreeSnapshot,
+  WorktreeStatus,
 } from "../../domain/types";
 import { OperationError } from "../../errors/operationError";
 import { toOperationDetails } from "../../operations/toOperationDetails";
@@ -30,6 +32,21 @@ function normalizeBranchRef(branchRef?: string): string | undefined {
 
 function toDisplayName(primaryPath: string): string {
   return path.basename(primaryPath);
+}
+
+// Status we cannot read from disk (bare worktree, prunable/stale entry, or a
+// directory git lists but no longer exists). Returned instead of spawning git
+// in a missing cwd, which fails as a misleading "ENOENT posix_spawn 'git'".
+function unreadableStatus(detached: boolean): WorktreeStatus {
+  return {
+    ahead: 0,
+    behind: 0,
+    changedCount: 0,
+    untrackedCount: 0,
+    conflictCount: 0,
+    clean: false,
+    detached,
+  };
 }
 
 async function listWorktrees(
@@ -64,6 +81,30 @@ async function listWorktrees(
   const worktrees: WorktreeSnapshot[] = [];
 
   for (const record of records) {
+    // A bare or prunable worktree has no usable working tree, and a prunable
+    // "gitdir points to non-existent location" entry means the directory is
+    // gone. Running git with cwd set to a missing directory fails as
+    // "ENOENT posix_spawn 'git'". Skip the status call and report the entry
+    // with its prunable/locked flags intact.
+    if (record.bare || record.prunableReason || !existsSync(record.path)) {
+      worktrees.push({
+        path: record.path,
+        headOid: record.headOid,
+        branchRef: record.branchRef,
+        displayBranch: normalizeBranchRef(record.branchRef) ?? "detached",
+        detached: record.detached,
+        bare: record.bare,
+        lockedReason: record.lockedReason,
+        prunableReason:
+          record.prunableReason ??
+          (!record.bare && !existsSync(record.path)
+            ? "worktree directory is missing"
+            : undefined),
+        status: unreadableStatus(record.detached),
+      });
+      continue;
+    }
+
     const statusResult = await commandRunner.run(
       "git",
       ["status", "--porcelain=v2", "--branch", "-z", "--untracked-files=normal"],

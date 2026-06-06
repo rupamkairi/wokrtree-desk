@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { rm } from "node:fs/promises";
 import path from "node:path";
 
 import { listBranchRefs } from "../../src/core/git/services/gitBranchService";
@@ -62,6 +63,32 @@ describe("project and worktree flows", () => {
     expect(normalizeSystemPath(existingBranch?.checkedOutPath ?? "")).toBe(
       normalizeSystemPath(fixture.featureWorktreePath),
     );
+  });
+
+  it("loads a project even when a listed worktree directory is missing", async () => {
+    const fixture = await createRepositoryFixture();
+    const runner = new NodeCommandRunner();
+
+    // Delete the linked worktree directory without telling git. Git still
+    // lists it (now `prunable: gitdir ... non-existent location`), and naively
+    // running `git status` there fails as "ENOENT posix_spawn 'git'".
+    await rm(fixture.featureWorktreePath, { recursive: true, force: true });
+
+    const { project } = await loadProjectDetails(runner, fixture.repoPath, {
+      worktreeRoot: fixture.worktreeRoot,
+      preferredEditor: "cursor",
+      preferredTerminal: "terminal",
+    });
+
+    expect(project.worktrees).toHaveLength(2);
+    const missing = project.worktrees.find(
+      (worktree) =>
+        normalizeSystemPath(worktree.path) ===
+        normalizeSystemPath(fixture.featureWorktreePath),
+    );
+    expect(missing).toBeDefined();
+    expect(missing?.prunableReason).toBeTruthy();
+    expect(missing?.status.clean).toBe(false);
   });
 
   it("previews and creates a worktree from a new branch", async () => {
