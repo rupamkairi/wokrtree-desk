@@ -68,6 +68,151 @@
     --sidebar-border: 212 14% 21%;
     --sidebar-ring: 215 84% 52%;
   }
+
+  /*
+   * Theme presets. `:root` above is the GitHub Dark baseline; selecting a theme
+   * sets `data-theme` on <html> and swaps the var set below. Tailwind tokens read
+   * these vars, so the whole app reskins. HSL triplets: "H S% L%".
+   */
+  [data-theme="github-light"] {
+    color-scheme: light;
+
+    --background: 0 0% 100%;
+    --foreground: 213 12% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 213 12% 14%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 213 12% 14%;
+    --primary: 212 92% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 29% 97%;
+    --secondary-foreground: 213 12% 14%;
+    --muted: 210 29% 97%;
+    --muted-foreground: 213 8% 43%;
+    --accent: 210 24% 93%;
+    --accent-foreground: 213 12% 14%;
+    --destructive: 356 72% 47%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 18% 84%;
+    --input: 210 18% 84%;
+    --ring: 212 92% 45%;
+    --surface: 0 0% 100%;
+    --surface-container-low: 210 29% 97%;
+    --surface-container: 210 24% 93%;
+    --surface-container-high: 213 16% 87%;
+    --success: 137 66% 30%;
+    --success-bright: 137 62% 33%;
+    --success-foreground: 0 0% 100%;
+    --warning: 40 100% 30%;
+    --warning-bright: 42 100% 37%;
+    --warning-foreground: 0 0% 100%;
+    --link: 212 92% 45%;
+  }
+
+  [data-theme="dracula"] {
+    color-scheme: dark;
+
+    --background: 231 15% 18%;
+    --foreground: 60 30% 96%;
+    --card: 232 14% 24%;
+    --card-foreground: 60 30% 96%;
+    --popover: 232 14% 24%;
+    --popover-foreground: 60 30% 96%;
+    --primary: 265 89% 78%;
+    --primary-foreground: 231 15% 18%;
+    --secondary: 232 14% 31%;
+    --secondary-foreground: 60 30% 96%;
+    --muted: 232 14% 31%;
+    --muted-foreground: 228 27% 60%;
+    --accent: 232 14% 31%;
+    --accent-foreground: 60 30% 96%;
+    --destructive: 0 100% 67%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 232 14% 31%;
+    --input: 232 14% 31%;
+    --ring: 265 89% 78%;
+    --surface: 231 15% 18%;
+    --surface-container-low: 230 13% 20%;
+    --surface-container: 232 14% 24%;
+    --surface-container-high: 231 13% 28%;
+    --success: 135 94% 65%;
+    --success-bright: 135 94% 65%;
+    --success-foreground: 231 15% 18%;
+    --warning: 31 100% 71%;
+    --warning-bright: 31 100% 71%;
+    --warning-foreground: 231 15% 12%;
+    --link: 191 97% 77%;
+  }
+
+  [data-theme="palenight"] {
+    color-scheme: dark;
+
+    --background: 229 21% 20%;
+    --foreground: 231 31% 73%;
+    --card: 228 17% 24%;
+    --card-foreground: 231 31% 80%;
+    --popover: 228 17% 24%;
+    --popover-foreground: 231 31% 80%;
+    --primary: 222 100% 75%;
+    --primary-foreground: 229 21% 14%;
+    --secondary: 228 19% 28%;
+    --secondary-foreground: 231 31% 80%;
+    --muted: 228 19% 28%;
+    --muted-foreground: 230 19% 56%;
+    --accent: 228 19% 28%;
+    --accent-foreground: 231 31% 80%;
+    --destructive: 350 100% 66%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 228 19% 28%;
+    --input: 228 19% 28%;
+    --ring: 222 100% 75%;
+    --surface: 229 21% 20%;
+    --surface-container-low: 228 19% 22%;
+    --surface-container: 228 17% 24%;
+    --surface-container-high: 228 18% 28%;
+    --success: 88 63% 73%;
+    --success-bright: 88 63% 73%;
+    --success-foreground: 229 21% 14%;
+    --warning: 39 100% 71%;
+    --warning-bright: 39 100% 71%;
+    --warning-foreground: 229 21% 12%;
+    --link: 197 100% 77%;
+  }
+
+  [data-theme="synthwave"] {
+    color-scheme: dark;
+
+    --background: 270 27% 15%;
+    --foreground: 290 5% 94%;
+    --card: 257 28% 20%;
+    --card-foreground: 290 5% 94%;
+    --popover: 257 28% 20%;
+    --popover-foreground: 290 5% 94%;
+    --primary: 313 100% 75%;
+    --primary-foreground: 270 27% 12%;
+    --secondary: 260 31% 24%;
+    --secondary-foreground: 290 5% 94%;
+    --muted: 260 31% 24%;
+    --muted-foreground: 233 31% 67%;
+    --accent: 260 31% 24%;
+    --accent-foreground: 290 5% 94%;
+    --destructive: 356 99% 63%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 260 31% 24%;
+    --input: 260 31% 24%;
+    --ring: 313 100% 75%;
+    --surface: 270 27% 15%;
+    --surface-container-low: 263 26% 18%;
+    --surface-container: 257 28% 20%;
+    --surface-container-high: 258 29% 26%;
+    --success: 154 81% 70%;
+    --success-bright: 154 81% 70%;
+    --success-foreground: 270 27% 12%;
+    --warning: 51 99% 68%;
+    --warning-bright: 51 99% 68%;
+    --warning-foreground: 270 27% 12%;
+    --link: 179 94% 59%;
+  }
 }
 
 @layer base {
@@ -117,6 +262,40 @@
 
   ::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground) / 0.5);
+    background-clip: padding-box;
+  }
+}
+
+@layer components {
+  /*
+   * Always-present, clearly visible scrollbar for the dense list panes
+   * (branches/worktrees, changes/history). macOS overlay scrollbars otherwise
+   * stay hidden until scrolling, and the default thumb is too low-contrast to
+   * notice. `overflow-y: scroll` + `scrollbar-gutter: stable` keeps the track
+   * reserved so the layout does not shift when content grows.
+   */
+  .wtd-scroll {
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+  }
+
+  .wtd-scroll::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .wtd-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .wtd-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.45);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .wtd-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.75);
     background-clip: padding-box;
   }
 }

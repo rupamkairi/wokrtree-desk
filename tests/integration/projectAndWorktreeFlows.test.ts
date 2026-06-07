@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { rm } from "node:fs/promises";
+import { lstat, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 import { listBranchRefs } from "../../src/core/git/services/gitBranchService";
@@ -153,5 +153,42 @@ describe("project and worktree flows", () => {
 
     expect(preview.canCreate).toBe(false);
     expect(preview.destinationExists).toBe(true);
+  });
+
+  it("copies a file and symlinks a folder into the new worktree", async () => {
+    const fixture = await createRepositoryFixture();
+    const runner = new NodeCommandRunner();
+
+    // Untracked, git-ignored-style artefacts in the source checkout.
+    await writeFile(path.join(fixture.repoPath, ".env"), "SECRET=1\n", "utf8");
+    await mkdir(path.join(fixture.repoPath, "vendor"), { recursive: true });
+    await writeFile(path.join(fixture.repoPath, "vendor", "lib.txt"), "dep\n", "utf8");
+
+    const project = (
+      await loadProjectDetails(runner, fixture.repoPath, {
+        worktreeRoot: fixture.worktreeRoot,
+        preferredEditor: "cursor",
+        preferredTerminal: "terminal",
+      })
+    ).project;
+
+    const targetPath = `${fixture.worktreeRoot}/feature-copy`;
+    const result = await createWorktree(runner, project, {
+      projectId: project.id,
+      branchMode: "new",
+      branchName: "feature/copy",
+      baseRef: "main",
+      targetPath,
+      copyFiles: [path.join(fixture.repoPath, ".env")],
+      copyFolders: [{ path: path.join(fixture.repoPath, "vendor"), mode: "symlink" }],
+    });
+
+    expect(result.copyWarnings).toEqual([]);
+
+    const copiedEnv = await readFile(path.join(targetPath, ".env"), "utf8");
+    expect(copiedEnv).toBe("SECRET=1\n");
+
+    const linkStat = await lstat(path.join(targetPath, "vendor"));
+    expect(linkStat.isSymbolicLink()).toBe(true);
   });
 });

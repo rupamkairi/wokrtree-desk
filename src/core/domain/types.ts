@@ -101,10 +101,20 @@ export type CommitSummary = {
   hash: string;
   shortHash: string;
   author: string;
+  authorEmail: string;
   date: string;
   subject: string;
+  body: string;
   parents: string[];
   isMerge: boolean;
+};
+
+export type RemoteHost = "github" | "gitlab" | "bitbucket" | "other";
+
+export type RemoteInfo = {
+  /** Web base URL like https://github.com/org/repo, or null if no usable remote. */
+  baseUrl: string | null;
+  host: RemoteHost;
 };
 
 export type CommitPage = {
@@ -136,12 +146,23 @@ export type CreateWorktreePreview = {
   };
 };
 
+export type CopyMode = "copy" | "symlink";
+
+export type CopyFolderSpec = {
+  path: string;
+  mode: CopyMode;
+};
+
 export type CreateWorktreeRequest = {
   projectId: string;
   branchMode: BranchMode;
   branchName: string;
   targetPath: string;
   baseRef?: string;
+  /** Absolute source paths of files to copy into the new worktree. */
+  copyFiles?: string[];
+  /** Absolute source folders to copy or symlink into the new worktree. */
+  copyFolders?: CopyFolderSpec[];
 };
 
 export type CreateWorktreeResult = {
@@ -149,6 +170,74 @@ export type CreateWorktreeResult = {
   createdPath: string;
   branchName: string;
   operation: OperationDetails;
+  /** Non-fatal problems while copying/symlinking files after the worktree was created. */
+  copyWarnings: string[];
+};
+
+export type CreateBranchRequest = {
+  projectId: string;
+  branchName: string;
+  baseRef: string;
+  checkout: boolean;
+};
+
+export type CreateBranchResult = {
+  branchName: string;
+  operation: OperationDetails;
+};
+
+export type SwitchWorktreeBranchRequest = {
+  projectId: string;
+  worktreePath: string;
+  branchName: string;
+};
+
+export type SwitchWorktreeBranchResult = {
+  worktreePath: string;
+  branchName: string;
+  operation: OperationDetails;
+};
+
+export type ChangedFile = {
+  path: string;
+  oldPath?: string;
+  /** Porcelain v2 X code (index/staged side). "?" when untracked. */
+  index: string;
+  /** Porcelain v2 Y code (worktree side). "?" when untracked. */
+  worktree: string;
+  untracked: boolean;
+  conflict: boolean;
+  /** Added/removed line counts (from numstat). Undefined when unknown; both 0 for binary. */
+  additions?: number;
+  deletions?: number;
+  binary?: boolean;
+};
+
+export type EditorTarget = {
+  id: string;
+  label: string;
+  /** macOS application name passed to `open -a`. */
+  app: string;
+};
+
+export type FileDiffRequest = {
+  projectId: string;
+  kind: "worktree" | "commit";
+  path: string;
+  oldPath?: string;
+  /** Required when kind === "worktree": the checkout to read the working file from. */
+  worktreePath?: string;
+  /** Required when kind === "commit": the commit to diff against its first parent. */
+  hash?: string;
+};
+
+export type FileDiff = {
+  path: string;
+  oldPath?: string;
+  original: string;
+  modified: string;
+  language: string;
+  binary: boolean;
 };
 
 export type ConfigState = {

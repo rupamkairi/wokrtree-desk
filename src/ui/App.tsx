@@ -2,9 +2,7 @@ import { useEffect } from "react";
 import { X } from "lucide-react";
 
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AppSidebar } from "./components/AppSidebar";
 import { RepositoriesView } from "./components/repositories/RepositoriesView";
-import { WorktreesView } from "./components/worktrees/WorktreesView";
 import { useRepositoryStore } from "./store/useRepositoryStore";
 
 function ErrorBanner() {
@@ -31,7 +29,6 @@ function ErrorBanner() {
 }
 
 function App() {
-  const view = useRepositoryStore((state) => state.view);
   const init = useRepositoryStore((state) => state.init);
 
   useEffect(() => {
@@ -41,12 +38,9 @@ function App() {
   return (
     <TooltipProvider delayDuration={300}>
       <main className="h-screen overflow-hidden bg-background text-foreground">
-        <div className="flex h-full min-w-[1080px]">
-          <AppSidebar />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <ErrorBanner />
-            {view === "worktrees" ? <WorktreesView /> : <RepositoriesView />}
-          </div>
+        <div className="flex h-full min-w-[960px] flex-col">
+          <ErrorBanner />
+          <RepositoriesView />
         </div>
       </main>
     </TooltipProvider>

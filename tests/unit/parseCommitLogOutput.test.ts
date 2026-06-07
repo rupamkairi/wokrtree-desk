@@ -18,17 +18,21 @@ describe("parseCommitLogOutput", () => {
         "1111111111111111111111111111111111111111",
         "1111111",
         "Ada Lovelace",
+        "ada@example.com",
         "2026-06-01T10:00:00+00:00",
         "0000000000000000000000000000000000000000",
         "feat: add analytical engine",
+        "Detailed body line.",
       ]),
       record([
         "2222222222222222222222222222222222222222",
         "2222222",
         "Grace Hopper",
+        "grace@example.com",
         "2026-05-30T08:30:00+00:00",
         "1111111111111111111111111111111111111111 0000000000000000000000000000000000000000",
         "Merge branch 'compiler'",
+        "",
       ]),
     ].join("\0");
 
@@ -37,8 +41,10 @@ describe("parseCommitLogOutput", () => {
         hash: "1111111111111111111111111111111111111111",
         shortHash: "1111111",
         author: "Ada Lovelace",
+        authorEmail: "ada@example.com",
         date: "2026-06-01T10:00:00+00:00",
         subject: "feat: add analytical engine",
+        body: "Detailed body line.",
         parents: ["0000000000000000000000000000000000000000"],
         isMerge: false,
       },
@@ -46,8 +52,10 @@ describe("parseCommitLogOutput", () => {
         hash: "2222222222222222222222222222222222222222",
         shortHash: "2222222",
         author: "Grace Hopper",
+        authorEmail: "grace@example.com",
         date: "2026-05-30T08:30:00+00:00",
         subject: "Merge branch 'compiler'",
+        body: "",
         parents: [
           "1111111111111111111111111111111111111111",
           "0000000000000000000000000000000000000000",
@@ -57,14 +65,16 @@ describe("parseCommitLogOutput", () => {
     ]);
   });
 
-  it("handles a root commit with no parents and a subject containing the field separator", () => {
+  it("handles a root commit with no parents", () => {
     const output = record([
       "3333333333333333333333333333333333333333",
       "3333333",
       "Linus",
+      "linus@example.com",
       "2026-04-01T00:00:00+00:00",
       "",
       "initial commit",
+      "",
     ]);
 
     const [commit] = parseCommitLogOutput(output);
@@ -77,8 +87,10 @@ describe("parseCommitLogOutput", () => {
     expect(parseCommitLogOutput("\0\0")).toEqual([]);
   });
 
-  it("uses the unit separator in the git format string", () => {
-    expect(COMMIT_LOG_FORMAT).toBe(["%H", "%h", "%an", "%aI", "%P", "%s"].join("%x1f"));
+  it("uses the unit separator and includes email + body in the format", () => {
+    expect(COMMIT_LOG_FORMAT).toBe(
+      ["%H", "%h", "%an", "%ae", "%aI", "%P", "%s", "%b"].join("%x1f"),
+    );
   });
 
   it("rejects malformed commit records", () => {

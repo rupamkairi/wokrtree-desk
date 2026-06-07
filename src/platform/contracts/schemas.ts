@@ -70,8 +70,10 @@ export const commitSummarySchema = z.object({
   hash: z.string(),
   shortHash: z.string(),
   author: z.string(),
+  authorEmail: z.string(),
   date: z.string(),
   subject: z.string(),
+  body: z.string(),
   parents: z.array(z.string()),
   isMerge: z.boolean(),
 });
@@ -131,12 +133,33 @@ export const getBranchRefsRequestSchema = z.object({
   projectId: z.string().min(1),
 });
 
+const copyModeSchema = z.enum(["copy", "symlink"]);
+
+export const copyFolderSpecSchema = z.object({
+  path: z.string().min(1),
+  mode: copyModeSchema,
+});
+
 export const createWorktreeRequestSchema = z.object({
   projectId: z.string().min(1),
   branchMode: branchModeSchema,
   branchName: z.string().min(1),
   targetPath: z.string().min(1),
   baseRef: z.string().optional(),
+  copyFiles: z.array(z.string().min(1)).optional(),
+  copyFolders: z.array(copyFolderSpecSchema).optional(),
+});
+
+export const createBranchRequestSchema = z.object({
+  projectId: z.string().min(1),
+  branchName: z.string().min(1),
+  baseRef: z.string().min(1),
+  checkout: z.boolean(),
+});
+
+export const createBranchResultSchema = z.object({
+  branchName: z.string(),
+  operation: operationDetailsSchema,
 });
 
 export const createWorktreePreviewSchema = z.object({
@@ -163,6 +186,75 @@ export const createWorktreeResultSchema = z.object({
   createdPath: z.string(),
   branchName: z.string(),
   operation: operationDetailsSchema,
+  copyWarnings: z.array(z.string()),
+});
+
+export const switchWorktreeBranchRequestSchema = z.object({
+  projectId: z.string().min(1),
+  worktreePath: z.string().min(1),
+  branchName: z.string().min(1),
+});
+
+export const switchWorktreeBranchResultSchema = z.object({
+  worktreePath: z.string(),
+  branchName: z.string(),
+  operation: operationDetailsSchema,
+});
+
+export const changedFileSchema = z.object({
+  path: z.string(),
+  oldPath: z.string().optional(),
+  index: z.string(),
+  worktree: z.string(),
+  untracked: z.boolean(),
+  conflict: z.boolean(),
+  additions: z.number().int().nonnegative().optional(),
+  deletions: z.number().int().nonnegative().optional(),
+  binary: z.boolean().optional(),
+});
+
+export const remoteInfoSchema = z.object({
+  baseUrl: z.string().nullable(),
+  host: z.enum(["github", "gitlab", "bitbucket", "other"]),
+});
+
+export const editorTargetSchema = z.object({
+  id: z.string(),
+  label: z.string(),
+  app: z.string(),
+});
+
+export const openWithRequestSchema = z.object({
+  app: z.string().min(1),
+  path: z.string().min(1),
+});
+
+export const getWorktreeChangesRequestSchema = z.object({
+  projectId: z.string().min(1),
+  worktreePath: z.string().min(1),
+});
+
+export const getCommitChangesRequestSchema = z.object({
+  projectId: z.string().min(1),
+  hash: z.string().min(1),
+});
+
+export const fileDiffRequestSchema = z.object({
+  projectId: z.string().min(1),
+  kind: z.enum(["worktree", "commit"]),
+  path: z.string().min(1),
+  oldPath: z.string().optional(),
+  worktreePath: z.string().optional(),
+  hash: z.string().optional(),
+});
+
+export const fileDiffSchema = z.object({
+  path: z.string(),
+  oldPath: z.string().optional(),
+  original: z.string(),
+  modified: z.string(),
+  language: z.string(),
+  binary: z.boolean(),
 });
 
 export const configStateSchema = z.object({

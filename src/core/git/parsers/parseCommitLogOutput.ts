@@ -6,9 +6,17 @@ import type { CommitSummary } from "../../domain/types";
 const FIELD_SEPARATOR = String.fromCharCode(0x1f);
 
 // git --format placeholders, joined by the unit separator above (%x1f).
-export const COMMIT_LOG_FORMAT = ["%H", "%h", "%an", "%aI", "%P", "%s"].join(
-  "%x1f",
-);
+// Body (%b) is last so any embedded separators fold into it.
+export const COMMIT_LOG_FORMAT = [
+  "%H",
+  "%h",
+  "%an",
+  "%ae",
+  "%aI",
+  "%P",
+  "%s",
+  "%b",
+].join("%x1f");
 
 export function parseCommitLogOutput(output: string): CommitSummary[] {
   const records = output
@@ -17,7 +25,7 @@ export function parseCommitLogOutput(output: string): CommitSummary[] {
     .filter((record) => record.length > 0);
 
   return records.map((record) => {
-    const [hash, shortHash, author, date, parents, ...subjectParts] =
+    const [hash, shortHash, author, authorEmail, date, parents, subject, ...bodyParts] =
       record.split(FIELD_SEPARATOR);
 
     if (!hash || !shortHash || !author || !date) {
@@ -33,8 +41,10 @@ export function parseCommitLogOutput(output: string): CommitSummary[] {
       hash,
       shortHash,
       author,
+      authorEmail: authorEmail ?? "",
       date,
-      subject: subjectParts.join(FIELD_SEPARATOR),
+      subject: subject ?? "",
+      body: bodyParts.join(FIELD_SEPARATOR).trim(),
       parents: parentHashes,
       isMerge: parentHashes.length > 1,
     } satisfies CommitSummary;

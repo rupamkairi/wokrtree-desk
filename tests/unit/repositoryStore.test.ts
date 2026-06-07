@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import type {
   BranchRef,
   CommitPage,
+  OperationDetails,
   ProjectDetails,
   ProjectSummary,
+  WorktreeSnapshot,
 } from "../../src/core/domain/types";
 import type { DesktopBridge } from "../../src/platform/contracts/desktopBridge";
 import { createRepositoryStore } from "../../src/ui/store/repositoryStore";
@@ -23,6 +25,43 @@ function makeProject(overrides: Partial<ProjectDetails> = {}): ProjectDetails {
     },
     worktrees: [],
     ...overrides,
+  };
+}
+
+function makeWorktree(overrides: Partial<WorktreeSnapshot> = {}): WorktreeSnapshot {
+  return {
+    path: "/repo-worktrees/feature",
+    headOid: "f".repeat(40),
+    branchRef: "refs/heads/feature",
+    displayBranch: "feature",
+    detached: false,
+    bare: false,
+    status: {
+      ahead: 0,
+      behind: 0,
+      changedCount: 0,
+      untrackedCount: 0,
+      conflictCount: 0,
+      clean: true,
+      detached: false,
+    },
+    ...overrides,
+  };
+}
+
+function makeOperation(): OperationDetails {
+  return {
+    executable: "git",
+    args: [],
+    cwd: "/repo",
+    exitCode: 0,
+    stdout: "",
+    stderr: "",
+    startedAt: "2026-06-01T00:00:00.000Z",
+    finishedAt: "2026-06-01T00:00:00.000Z",
+    durationMs: 0,
+    success: true,
+    commandDisplay: "git",
   };
 }
 
@@ -62,6 +101,14 @@ class FakeBridge implements DesktopBridge {
     return this.options.chosenPath ?? null;
   }
 
+  async chooseFiles() {
+    return [];
+  }
+
+  async chooseFolders() {
+    return [];
+  }
+
   async openPath() {}
 
   async getProjects(): Promise<ProjectSummary[]> {
@@ -98,16 +145,23 @@ class FakeBridge implements DesktopBridge {
     return this.options.branches ?? [makeBranch()];
   }
 
-  async getCommits(): Promise<CommitPage> {
+  lastCommitsRequest: { branchName: string } | null = null;
+
+  async getCommits(input: { branchName: string }): Promise<CommitPage> {
+    this.lastCommitsRequest = { branchName: input.branchName };
     return (
       this.options.commits ?? {
-        branchName: "main",
+        branchName: input.branchName,
         commits: [],
         skip: 0,
         limit: 20,
         hasMore: false,
       }
     );
+  }
+
+  async createBranch(): Promise<never> {
+    throw new Error("not used");
   }
 
   async previewCreateWorktree(): Promise<never> {
@@ -120,6 +174,45 @@ class FakeBridge implements DesktopBridge {
 
   async refreshProject(input: { projectId: string }): Promise<ProjectDetails> {
     return this.getProject(input);
+  }
+
+  switchCalls: Array<{ worktreePath: string; branchName: string }> = [];
+
+  async switchWorktreeBranch(input: {
+    worktreePath: string;
+    branchName: string;
+  }) {
+    this.switchCalls.push({
+      worktreePath: input.worktreePath,
+      branchName: input.branchName,
+    });
+    return {
+      worktreePath: input.worktreePath,
+      branchName: input.branchName,
+      operation: makeOperation(),
+    };
+  }
+
+  async listEditors() {
+    return [];
+  }
+
+  async openWith() {}
+
+  async getWorktreeChanges() {
+    return [];
+  }
+
+  async getCommitChanges() {
+    return [];
+  }
+
+  async getFileDiff(): Promise<never> {
+    throw new Error("not used");
+  }
+
+  async getRemoteInfo() {
+    return { baseUrl: null, host: "other" as const };
   }
 
   async getLastOperation() {
@@ -137,7 +230,6 @@ describe("repository store — add project flow", () => {
 
     const state = store.getState();
     expect(state.selectedProject?.id).toBe(project.id);
-    expect(state.view).toBe("repositories");
   });
 
   it("loads branches and commits for the newly added repository", async () => {
@@ -150,8 +242,10 @@ describe("repository store — add project flow", () => {
           hash: "a".repeat(40),
           shortHash: "aaaaaaa",
           author: "Dev",
+          authorEmail: "dev@example.com",
           date: "2026-06-01T00:00:00+00:00",
           subject: "initial",
+          body: "",
           parents: [],
           isMerge: false,
         },
@@ -194,5 +288,79 @@ describe("repository store — add project flow", () => {
     const state = store.getState();
     expect(state.selectedProject).toBeNull();
     expect(state.errorMessage).toBe("not a git worktree");
+  });
+});
+
+describe("repository store — worktree focus + switch", () => {
+  it("focuses a worktree, logging its checked-out branch and tracking its path", async () => {
+    const project = makeProject({
+      worktrees: [makeWorktree()],
+    });
+    const branches = [
+      makeBranch({ name: "main" }),
+      makeBranch({
+        fullRef: "refs/heads/feature",
+        name: "feature",
+        checkedOut: true,
+        checkedOutPath: "/repo-worktrees/feature",
+        isDefault: false,
+      }),
+    ];
+    const bridge = new FakeBridge({ chosenPath: "/repo", project, branches });
+    const store = createRepositoryStore(bridge);
+    await store.getState().addProject();
+
+    await store.getState().focusWorktree(makeWorktree());
+
+    const state = store.getState();
+    expect(state.focusedWorktree).toBe("/repo-worktrees/feature");
+    expect(state.changesWorktreePath).toBe("/repo-worktrees/feature");
+    expect(state.selectedBranch).toBe("feature");
+    expect(bridge.lastCommitsRequest?.branchName).toBe("feature");
+  });
+
+  it("logs from HEAD for a detached worktree and leaves no branch selected", async () => {
+    const detached = makeWorktree({
+      path: "/repo-worktrees/v1",
+      displayBranch: "detached",
+      detached: true,
+      branchRef: undefined,
+      status: {
+        ahead: 0,
+        behind: 0,
+        changedCount: 0,
+        untrackedCount: 0,
+        conflictCount: 0,
+        clean: true,
+        detached: true,
+      },
+    });
+    const project = makeProject({ worktrees: [detached] });
+    const bridge = new FakeBridge({ chosenPath: "/repo", project });
+    const store = createRepositoryStore(bridge);
+    await store.getState().addProject();
+
+    await store.getState().focusWorktree(detached);
+
+    const state = store.getState();
+    expect(state.focusedWorktree).toBe("/repo-worktrees/v1");
+    expect(state.selectedBranch).toBeNull();
+    expect(bridge.lastCommitsRequest?.branchName).toBe("f".repeat(40));
+  });
+
+  it("switches a worktree's branch through the bridge", async () => {
+    const project = makeProject({ worktrees: [makeWorktree()] });
+    const bridge = new FakeBridge({ chosenPath: "/repo", project });
+    const store = createRepositoryStore(bridge);
+    await store.getState().addProject();
+
+    const ok = await store
+      .getState()
+      .switchWorktreeBranch("/repo-worktrees/feature", "release");
+
+    expect(ok).toBe(true);
+    expect(bridge.switchCalls).toEqual([
+      { worktreePath: "/repo-worktrees/feature", branchName: "release" },
+    ]);
   });
 });
