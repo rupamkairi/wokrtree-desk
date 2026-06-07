@@ -339,7 +339,7 @@ export function BranchColumn() {
   }
 
   return (
-    <div className="flex h-full w-[300px] shrink-0 flex-col border-r border-border bg-surface-container-low">
+    <div className="flex h-full min-h-0 w-[300px] shrink-0 flex-col border-r border-border bg-surface-container-low">
       <div className="flex items-center gap-2 border-b border-border px-3 py-3">
         <GitBranch className="h-4 w-4 shrink-0 text-muted-foreground" />
         <div className="min-w-0 flex-1">

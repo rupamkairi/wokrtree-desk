@@ -38,7 +38,7 @@ function App() {
   return (
     <TooltipProvider delayDuration={300}>
       <main className="h-screen overflow-hidden bg-background text-foreground">
-        <div className="flex h-full min-w-[960px] flex-col">
+        <div className="flex h-full min-h-0 min-w-[960px] flex-col">
           <ErrorBanner />
           <RepositoriesView />
         </div>

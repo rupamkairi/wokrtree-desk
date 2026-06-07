@@ -293,7 +293,7 @@ export function HistoryColumn() {
   const changeCount = useRepositoryStore((state) => state.changes.length);
 
   return (
-    <div className="flex h-full w-[360px] shrink-0 flex-col border-r border-border bg-surface-container">
+    <div className="flex h-full min-h-0 w-[360px] shrink-0 flex-col border-r border-border bg-surface-container">
       <div className="flex border-b border-border">
         {(
           [
