@@ -4,7 +4,8 @@
   "description": "Worktree Desk desktop app scaffold built with Electrobun, React, TypeScript, Vite, and Tailwind CSS.",
   "scripts": {
     "start": "bun run dev",
-    "dev": "vite build && electrobun dev",
+    "dev": "vite build && electrobun build --env=dev && codesign --force --deep --sign - 'build/dev-macos-arm64/Worktree Desk-dev.app' && open 'build/dev-macos-arm64/Worktree Desk-dev.app'",
+    "dev:run": "vite build && electrobun build --env=dev && codesign --force --deep --sign - 'build/dev-macos-arm64/Worktree Desk-dev.app' && open 'build/dev-macos-arm64/Worktree Desk-dev.app'",
     "dev:hmr": "concurrently \"bun run hmr\" \"bun run dev\"",
     "hmr": "vite --port 5173",
     "test": "vitest run --config vitest.config.ts",
