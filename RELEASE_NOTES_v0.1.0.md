@@ -44,9 +44,16 @@
 
 ## Install
 
-Download `Worktree Desk.app` below. macOS arm64 only.
+**Homebrew (recommended — no Gatekeeper warning)**
 
-Right-click > Open on first launch — this build is unsigned.
+```sh
+brew tap rupamkairi/tap
+brew install --cask worktree-desk
+```
+
+**Manual**
+
+Download the `.dmg` below. macOS arm64 only.
 
 ## Build from source
 

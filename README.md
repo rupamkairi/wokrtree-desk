@@ -25,11 +25,20 @@ Git worktrees let you check out multiple branches in parallel without cloning ag
 
 > **Note:** Create-worktree wizard, shared resource profiles, editor/terminal launch, and preferences are work-in-progress. See the [roadmap](#roadmap).
 
-## Download
+## Install
 
-Grab the latest `.app` from [Releases](https://github.com/rupamkairi/wokrtree-desk/releases).
+**macOS (recommended)**
 
-macOS arm64 only for v0.1.0. Right-click > Open on first launch (unsigned build).
+```sh
+brew tap rupamkairi/tap
+brew install --cask worktree-desk
+```
+
+Homebrew handles everything — no Gatekeeper warnings, no terminal workarounds.
+
+**Manual download**
+
+Grab the `.dmg` from [Releases](https://github.com/rupamkairi/wokrtree-desk/releases). macOS arm64 only.
 
 ## Build from Source
 
